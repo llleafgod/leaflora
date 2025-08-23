@@ -28,6 +28,40 @@
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 body {
     font-family: 'Microsoft YaHei', Arial, sans-serif;
     background: linear-gradient(-45deg, #f6f8ff, #f0f4ff, #e8ecff, #f2f6ff);
@@ -35,6 +69,100 @@ body {
     animation: gradient 15s ease infinite;
     min-height: 100vh;
     color: #333;
+}
+
+/* 登录模态框样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(31, 38, 135, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    text-align: center;
+    min-width: 350px;
+    animation: slideDown 0.3s ease;
+}
+
+.modal-content h2 {
+    color: #566270;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid rgba(142, 154, 175, 0.3);
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #3a4149;
+    transition: all 0.3s ease;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: rgba(86, 98, 112, 0.5);
+    background: rgba(255, 255, 255, 1);
+}
+
+.login-btn {
+    width: 100%;
+    background: rgba(86, 98, 112, 0.8);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.login-btn:hover {
+    background: rgba(86, 98, 112, 1);
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #d63447;
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+/* 退出登录按钮 */
+.logout-btn {
+    background: rgba(255, 99, 99, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    font-size: 16px;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 99, 99, 0.3);
+    transform: scale(1.1);
 }
 
 .container {
@@ -90,170 +218,7 @@ body {
     font-family: 'Times New Roman', serif;
 }
 
-/* 时间轴控制按钮 */
-.sort-btn {
-    background: rgba(142, 154, 175, 0.2);
-    border: 1px solid rgba(142, 154, 175, 0.3);
-    color: #3a4149;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
-    font-weight: 500;
-}
-
-.sort-btn:hover {
-    background: rgba(142, 154, 175, 0.3);
-    transform: translateY(-1px);
-}
-
-.sort-icon {
-    font-size: 1.2em;
-    color: #3a4149;
-}
-
-.sort-text {
-    color: #3a4149;
-}
-
-/* 时间轴样式 */
-.timeline {
-    position: relative;
-    padding: 20px 0;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    top: 0;
-}
-
-.timeline-item {
-    margin-bottom: 30px;
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-/* 调整时间轴内容样式 */
-.timeline-content {
-    background: rgba(255, 255, 255, 0.3);
-    position: relative;
-}
-
-.timeline-content:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.timeline-date {
-    position: absolute;
-    top: -30px;
-    left: 20px;
-    color: #3a4149;
-    font-size: 0.9em;
-    background: rgba(255, 255, 255, 0.3);
-    padding: 5px 15px;
-    border-radius: 15px;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-}
-
-.timeline-media {
-    margin-bottom: 15px;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.timeline-media img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-}
-
-.timeline-media video {
-    width: 100%;
-    border-radius: 10px;
-}
-
-.timeline-text {
-    color: #566270;
-    line-height: 1.6;
-}
-
-.timeline-text h3 {
-    margin-bottom: 10px;
-    color: #566270;
-}
-
-.timeline-posted {
-    font-size: 0.8em;
-    color: #8e9aaf;
-    margin-top: 10px;
-    text-align: right;
-    font-style: italic;
-}
-
-/* 上传类型切换按钮 */
-.upload-options {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
-}
-
-.upload-type-btn {
-    background: rgba(142, 154, 175, 0.15);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-    color: #3a4149;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
-    font-weight: 500;
-}
-
-.upload-type-btn:hover {
-    background: rgba(142, 154, 175, 0.25);
-    transform: translateY(-1px);
-}
-
-.upload-type-btn.active {
-    background: rgba(86, 98, 112, 0.2);
-    border-color: rgba(86, 98, 112, 0.3);
-    color: #3a4149;
-    font-weight: 600;
-}
-
-.hidden {
-    display: none;
-}
-
-/* 提交按钮 */
-.submit-btn {
-    background: rgba(86, 98, 112, 0.25);
-    color: #3a4149;
-    font-weight: 600;
-    font-size: 1.1em;
-    padding: 15px 30px;
-}
-
-.submit-btn:hover {
-    background: rgba(86, 98, 112, 0.35);
-    transform: translateY(-2px);
-}
-
+/* 导航按钮 */
 .nav {
     display: flex;
     justify-content: center;
@@ -262,7 +227,6 @@ body {
     gap: 20px;
 }
 
-/* 调整导航按钮样式 */
 .nav-btn {
     background: rgba(142, 154, 175, 0.15);
     color: #566270;
@@ -289,6 +253,194 @@ body {
     color: #3a4149;
 }
 
+/* 时间轴控制按钮 */
+.timeline-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.sort-btn, .refresh-btn {
+    background: rgba(142, 154, 175, 0.2);
+    border: 1px solid rgba(142, 154, 175, 0.3);
+    color: #3a4149;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    font-weight: 500;
+}
+
+.sort-btn:hover, .refresh-btn:hover {
+    background: rgba(142, 154, 175, 0.3);
+    transform: translateY(-1px);
+}
+
+.sort-icon, .refresh-icon {
+    font-size: 1.2em;
+    color: #3a4149;
+}
+
+.sort-text, .refresh-text {
+    color: #3a4149;
+}
+
+/* 加载状态 */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #566270;
+    font-size: 18px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* 时间轴样式 */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: rgba(142, 154, 175, 0.3);
+    top: 0;
+}
+
+.timeline-item {
+    margin-bottom: 30px;
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.timeline-content {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+}
+
+.timeline-date {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    color: #3a4149;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 15px;
+    border-radius: 15px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(142, 154, 175, 0.2);
+    font-weight: 500;
+}
+
+.timeline-media {
+    margin-bottom: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.timeline-media img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.timeline-media img:hover {
+    transform: scale(1.02);
+}
+
+.timeline-media video {
+    width: 100%;
+    border-radius: 15px;
+}
+
+.timeline-text {
+    color: #566270;
+    line-height: 1.6;
+}
+
+.timeline-text h3 {
+    margin-bottom: 10px;
+    color: #566270;
+    font-size: 1.2em;
+}
+
+.timeline-posted {
+    font-size: 0.8em;
+    color: #8e9aaf;
+    margin-top: 15px;
+    text-align: right;
+    font-style: italic;
+}
+
+/* 删除按钮样式 */
+.delete-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 99, 99, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    font-size: 18px;
+    color: #d63447;
+}
+
+.delete-btn:hover {
+    background: rgba(255, 99, 99, 0.3);
+    transform: scale(1.1);
+}
+
+.delete-btn::before {
+    content: '×';
+    font-weight: bold;
+}
+
+/* 空状态消息 */
+.empty-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #8e9aaf;
+    font-size: 1.2em;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    border: 2px dashed rgba(142, 154, 175, 0.3);
+}
+
+/* 主要内容区域 */
 .section {
     display: none;
     background: rgba(255, 255, 255, 0.1);
@@ -306,116 +458,48 @@ body {
 }
 
 .section h2 {
-    font-size: 2em;
-    margin-bottom: 30px;
-    color: #fff;
+    color: #3a4149;
+    font-weight: 600;
+    font-size: 1.8em;
+    margin-bottom: 25px;
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
-.content-section {
-    margin-bottom: 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.content-section h3 {
-    color: #fff;
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-.photo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.photo-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.photo-card:hover {
-    transform: translateY(-5px) scale(1.02);
-}
-
-.photo-placeholder {
-    background: rgba(255, 255, 255, 0.05);
-    height: 200px;
-    border-radius: 10px;
+/* 上传类型切换按钮 */
+.upload-options {
     display: flex;
-    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 14px;
-    margin-bottom: 10px;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    flex-wrap: wrap;
 }
 
-.photo-placeholder:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.photo-card .date {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 5px;
-}
-
-.photo-card .description {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.memory-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.upload-type-btn {
+    background: rgba(142, 154, 175, 0.15);
+    border: 1px solid rgba(142, 154, 175, 0.2);
+    color: #3a4149;
+    padding: 12px 24px;
+    border-radius: 20px;
+    cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.memory-card:hover {
-    transform: translateY(-3px);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.memory-card .date {
+    font-weight: 500;
     font-size: 14px;
-    color: #FF79C6;
-    font-weight: bold;
-    margin-bottom: 10px;
 }
 
-.memory-card .title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+.upload-type-btn:hover {
+    background: rgba(142, 154, 175, 0.25);
+    transform: translateY(-1px);
 }
 
-.memory-card .content {
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
+.upload-type-btn.active {
+    background: rgba(86, 98, 112, 0.2);
+    border-color: rgba(86, 98, 112, 0.3);
+    color: #3a4149;
+    font-weight: 600;
 }
 
-/* 调整上传区域样式 */
+/* 上传区域样式 */
 .upload-area {
     background: rgba(255, 255, 255, 0.3);
     border: 2px dashed rgba(142, 154, 175, 0.3);
@@ -431,6 +515,60 @@ body {
     border-color: rgba(86, 98, 112, 0.4);
 }
 
+.upload-area h3 {
+    font-size: 1.2em;
+    color: #3a4149;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.upload-area p {
+    font-size: 0.9em;
+    color: #566270;
+    margin-bottom: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 预览区域 */
+.upload-preview {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.preview-item {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid rgba(142, 154, 175, 0.2);
+}
+
+.preview-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.video-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: #566270;
+}
+
+.file-name {
+    font-size: 12px;
+    color: #8e9aaf;
+    word-break: break-word;
+}
+
+/* 通用按钮样式 */
 .upload-btn {
     background: rgba(86, 98, 112, 0.2);
     color: #3a4149;
@@ -442,6 +580,7 @@ body {
     margin: 5px;
     transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 500;
 }
 
 .upload-btn:hover {
@@ -450,11 +589,35 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
+.upload-btn:disabled {
+    background: rgba(142, 154, 175, 0.2);
+    color: #8e9aaf;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 提交按钮 */
+.submit-btn {
+    background: rgba(86, 98, 112, 0.25);
+    color: #3a4149;
+    font-weight: 600;
+    font-size: 1.1em;
+    padding: 15px 30px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: rgba(86, 98, 112, 0.35);
+    transform: translateY(-2px);
+}
+
+/* 表单样式 */
 .form-group {
     margin-bottom: 20px;
 }
 
-/* 表单标签文字 */
 .form-group label {
     display: block;
     margin-bottom: 8px;
@@ -463,7 +626,6 @@ body {
     font-size: 1em;
 }
 
-/* 调整表单元素样式 */
 .form-group input, 
 .form-group textarea {
     width: 100%;
@@ -483,7 +645,7 @@ body {
     border-color: rgba(86, 98, 112, 0.5);
 }
 
-/* 调整输入框占位符颜色 */
+/* 占位符文字样式 */
 input::placeholder,
 textarea::placeholder {
     color: #8e9aaf !important;
@@ -508,7 +670,6 @@ input[type="datetime-local"]:focus {
     outline: none;
 }
 
-/* 日期选择器图标 */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: opacity(0.6);
     cursor: pointer;
@@ -523,7 +684,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     background-color: rgba(142, 154, 175, 0.3);
 }
 
-/* 确保日期文字颜色正确 */
 input[type="datetime-local"]::-webkit-datetime-edit {
     color: #3a4149;
 }
@@ -545,43 +705,39 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     color: #3a4149;
 }
 
-.video-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.video-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease;
-}
-
-.video-card:hover {
-    transform: translateY(-5px) scale(1.02);
-}
-
-.video-placeholder {
-    background: rgba(255, 255, 255, 0.05);
-    height: 180px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.7);
+/* 通知样式 */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(142, 154, 175, 0.2);
+    color: #3a4149;
     font-size: 14px;
-    margin-bottom: 10px;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    font-weight: 500;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.video-placeholder:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    background: rgba(46, 213, 115, 0.15);
+    color: #2a9d68;
+    border-color: rgba(46, 213, 115, 0.3);
+}
+
+.notification.error {
+    background: rgba(255, 71, 87, 0.15);
+    color: #d63447;
+    border-color: rgba(255, 71, 87, 0.3);
 }
 
 /* 底部文字 */
@@ -597,20 +753,11 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     backdrop-filter: blur(4px);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* 响应式设计 */
 @media (max-width: 768px) {
     .header h1 {
         font-size: 2em;
+        flex-wrap: wrap;
     }
     
     .nav {
@@ -625,133 +772,69 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     .container {
         padding: 10px;
     }
-} 
-
-/* 通知样式 */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    border-radius: 50px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    font-size: 14px;
-    transform: translateX(150%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    
+    .timeline::before {
+        left: 20px;
+    }
+    
+    .timeline-content {
+        margin-left: 40px;
+        max-width: calc(100% - 60px);
+    }
+    
+    .timeline-date {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+    
+    .upload-preview {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        min-width: auto;
+        width: calc(100% - 40px);
+        max-width: 400px;
+    }
+    
+    .upload-options {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .upload-type-btn {
+        width: 200px;
+    }
+    
+    .timeline-controls {
+        flex-direction: column;
+        align-items: center;
+    }
 }
 
-.notification.show {
-    transform: translateX(0);
+@media (max-width: 480px) {
+    .header {
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.6em;
+    }
+    
+    .section {
+        padding: 20px;
+    }
+    
+    .upload-area {
+        padding: 25px 15px;
+    }
+    
+    .timeline-content {
+        padding: 20px 15px;
+    }
 }
-
-/* 调整通知样式 */
-.notification {
-    background: rgba(255, 255, 255, 0.4);
-    color: #3a4149;
-    border: 1px solid rgba(142, 154, 175, 0.3);
-}
-
-.notification.success {
-    background: rgba(46, 213, 115, 0.15);
-    color: #2a9d68;
-    border-color: rgba(46, 213, 115, 0.3);
-}
-
-.notification.error {
-    background: rgba(255, 71, 87, 0.15);
-    color: #d63447;
-    border-color: rgba(255, 71, 87, 0.3);
-} 
-
-/* 删除按钮样式 */
-.delete-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(142, 154, 175, 0.2);
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
-}
-
-.delete-btn:hover {
-    background: rgba(255, 99, 99, 0.15);
-    transform: scale(1.1);
-}
-
-.delete-btn::before {
-    content: '×';
-    font-size: 20px;
-    color: #3a4149;
-} 
-
-/* 调整时间轴线条颜色 */
-.timeline::before {
-    background: rgba(142, 154, 175, 0.3);
-}
-
-/* 确保所有文字标签颜色可见 */
-.form-group label,
-.upload-area h3,
-.section h2 {
-    color: #3a4149;
-    font-weight: 500;
-} 
-
-/* 上传区域文字 */
-.upload-area h3 {
-    font-size: 1.2em;
-    color: #3a4149;
-    margin-bottom: 10px;
-    font-weight: 600;
-}
-
-.upload-area p {
-    font-size: 0.9em;
-    color: #566270;
-    margin-bottom: 15px;
-}
-
-/* 确保所有文字可见 */
-.section h2 {
-    color: #3a4149;
-    font-weight: 600;
-    font-size: 1.5em;
-    margin-bottom: 25px;
-    text-align: center;
-}
-
-/* 调整占位符文字颜色 */
-input::placeholder,
-textarea::placeholder {
-    color: #8e9aaf !important;
-    opacity: 0.8;
-}
-
-/* 调整时间轴日期文字 */
-.timeline-date {
-    color: #3a4149;
-    font-weight: 500;
-    background: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-}
-
-/* 调整通知文字 */
-.notification {
-    color: #3a4149;
-    font-weight: 500;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-} 
