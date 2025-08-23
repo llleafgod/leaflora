@@ -1,13 +1,127 @@
+// API 配置
+const API_BASE_URL = 'https://leaflora-backend-openapi.llleafgod.workers.dev';
+
 // 存储数据的变量
-let memories = JSON.parse(localStorage.getItem('floraleaf_memories') || '[]');
-let isTimelineAscending = false; // 默认最新的在前面
+let memories = [];
+let isTimelineAscending = false;
+let currentUploadType = 'photo';
+let currentFiles = [];
+let authToken = null;
 
 // 页面加载时初始化
 window.addEventListener('load', function() {
-    loadStoredData();
-    updateTimeline();
+    checkAuth();
+    initializeDateInput();
+    setupFileInputs();
+    setupDragAndDrop();
+});
+
+// 检查认证状态
+async function checkAuth() {
+    authToken = sessionStorage.getItem('auth_token');
     
-    // 设置日期输入框的默认值为当前时间
+    if (!authToken) {
+        showLoginModal();
+        return;
+    }
+    
+    // 验证 token 是否有效
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.valid) {
+            hideLoginModal();
+            loadMemories();
+        } else {
+            sessionStorage.removeItem('auth_token');
+            showLoginModal();
+        }
+    } catch (error) {
+        console.error('Auth verification failed:', error);
+        sessionStorage.removeItem('auth_token');
+        showLoginModal();
+    }
+}
+
+// 显示登录模态框
+function showLoginModal() {
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('passwordInput').focus();
+}
+
+// 隐藏登录模态框
+function hideLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+}
+
+// 登录
+async function login() {
+    const password = document.getElementById('passwordInput').value;
+    const errorElement = document.getElementById('loginError');
+    
+    if (!password) {
+        errorElement.textContent = '请输入密码';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            authToken = result.token;
+            sessionStorage.setItem('auth_token', authToken);
+            errorElement.textContent = '';
+            hideLoginModal();
+            loadMemories();
+            showNotification('登录成功！');
+        } else {
+            errorElement.textContent = result.message || '登录失败';
+        }
+    } catch (error) {
+        console.error('Login failed:', error);
+        errorElement.textContent = '网络错误，请重试';
+    }
+}
+
+// 退出登录
+function logout() {
+    if (confirm('确定要退出登录吗？')) {
+        sessionStorage.removeItem('auth_token');
+        authToken = null;
+        memories = [];
+        document.getElementById('timeline').innerHTML = '';
+        showLoginModal();
+        showNotification('已退出登录');
+    }
+}
+
+// 处理密码输入框回车事件
+function handlePasswordKeyPress(event) {
+    if (event.key === 'Enter') {
+        login();
+    }
+}
+
+// 初始化日期输入框
+function initializeDateInput() {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -15,22 +129,49 @@ window.addEventListener('load', function() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     document.getElementById('memoryDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
-});
+}
+
+// 加载回忆数据
+async function loadMemories() {
+    if (!authToken) return;
+    
+    const loading = document.getElementById('timelineLoading');
+    loading.style.display = 'block';
+    
+    try {
+        const sortParam = isTimelineAscending ? 'asc' : 'desc';
+        const response = await fetch(`${API_BASE_URL}/memories?sort=${sortParam}`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            memories = result.data || [];
+            updateTimeline();
+        } else {
+            showNotification('加载回忆失败：' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Load memories failed:', error);
+        showNotification('网络错误，加载失败', 'error');
+    } finally {
+        loading.style.display = 'none';
+    }
+}
 
 // 显示不同的部分
 function showSection(sectionName) {
-    // 隐藏所有部分
     const sections = document.querySelectorAll('.section');
     sections.forEach(section => section.classList.remove('active'));
     
-    // 移除所有导航按钮的active状态
     const navBtns = document.querySelectorAll('.nav-btn');
     navBtns.forEach(btn => btn.classList.remove('active'));
     
-    // 显示选中的部分
     document.getElementById(sectionName).classList.add('active');
     
-    // 高亮对应的导航按钮
     const activeBtn = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
     if (activeBtn) {
         activeBtn.classList.add('active');
@@ -42,16 +183,32 @@ function toggleTimelineSort() {
     isTimelineAscending = !isTimelineAscending;
     const sortBtn = document.querySelector('.sort-btn .sort-text');
     sortBtn.textContent = isTimelineAscending ? '最早优先' : '最新优先';
-    updateTimeline();
+    loadMemories(); // 重新加载数据
 }
 
 // 删除回忆
-function deleteMemory(id) {
-    if (confirm('确定要删除这条回忆吗？')) {
-        memories = memories.filter(memory => memory.id !== id);
-        localStorage.setItem('floraleaf_memories', JSON.stringify(memories));
-        updateTimeline();
-        showNotification('回忆已删除');
+async function deleteMemory(id) {
+    if (!confirm('确定要删除这条回忆吗？')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/memories/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('回忆已删除');
+            loadMemories(); // 重新加载数据
+        } else {
+            showNotification('删除失败：' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Delete memory failed:', error);
+        showNotification('网络错误，删除失败', 'error');
     }
 }
 
@@ -60,41 +217,39 @@ function updateTimeline() {
     const timeline = document.getElementById('timeline');
     timeline.innerHTML = '';
     
-    // 对记忆进行排序（使用事件发生时间）
-    const sortedMemories = [...memories].sort((a, b) => {
-        const timeA = new Date(a.eventDate).getTime();
-        const timeB = new Date(b.eventDate).getTime();
-        return isTimelineAscending ? timeA - timeB : timeB - timeA;
-    });
+    if (memories.length === 0) {
+        timeline.innerHTML = '<div class="empty-message">还没有回忆，快去上传一些吧！✨</div>';
+        return;
+    }
     
-    sortedMemories.forEach(memory => {
+    memories.forEach(memory => {
         const timelineItem = document.createElement('div');
         timelineItem.className = 'timeline-item';
         
         let mediaContent = '';
-        if (memory.type === 'photo' && memory.photos) {
-            mediaContent = memory.photos.map(photo => 
-                `<img src="${photo}" alt="${memory.title || '照片'}">`
+        if (memory.type === 'photo' && memory.media_urls && memory.media_urls.length > 0) {
+            mediaContent = memory.media_urls.map(url => 
+                `<img src="${url}" alt="${memory.title || '照片'}" loading="lazy">`
             ).join('');
-        } else if (memory.type === 'video' && memory.video) {
-            mediaContent = `
-                <video controls>
-                    <source src="${memory.video}" type="video/mp4">
+        } else if (memory.type === 'video' && memory.media_urls && memory.media_urls.length > 0) {
+            mediaContent = memory.media_urls.map(url => `
+                <video controls preload="metadata">
+                    <source src="${url}" type="video/mp4">
                     您的浏览器不支持视频播放
                 </video>
-            `;
+            `).join('');
         }
         
         timelineItem.innerHTML = `
             <div class="timeline-content">
                 <button class="delete-btn" onclick="deleteMemory(${memory.id})" title="删除这条回忆"></button>
-                <div class="timeline-date">${formatDate(memory.eventDate)}</div>
+                <div class="timeline-date">${formatDate(memory.event_date)}</div>
                 ${mediaContent ? `<div class="timeline-media">${mediaContent}</div>` : ''}
                 <div class="timeline-text">
                     ${memory.title ? `<h3>${memory.title}</h3>` : ''}
                     <p>${memory.content}</p>
                 </div>
-                <div class="timeline-posted">发布于: ${formatDate(memory.createdAt)}</div>
+                <div class="timeline-posted">发布于: ${formatDate(memory.created_at)}</div>
             </div>
         `;
         
@@ -104,117 +259,242 @@ function updateTimeline() {
 
 // 切换上传类型
 function switchUploadType(type) {
-    // 更新按钮状态
     document.querySelectorAll('.upload-type-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[onclick="switchUploadType('${type}')"]`).classList.add('active');
     
-    // 显示/隐藏相应的上传区域
     document.getElementById('photoUpload').classList.toggle('hidden', type !== 'photo');
     document.getElementById('videoUpload').classList.toggle('hidden', type !== 'video');
     
-    // 记住当前选择的类型
     currentUploadType = type;
+    currentFiles = []; // 清空当前文件
+    clearPreviews();
+}
+
+// 设置文件输入事件
+function setupFileInputs() {
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        handleFileSelection(e.target.files, 'photo');
+    });
+    
+    document.getElementById('videoInput').addEventListener('change', function(e) {
+        handleFileSelection(e.target.files, 'video');
+    });
+}
+
+// 设置拖拽上传
+function setupDragAndDrop() {
+    document.querySelectorAll('.upload-area').forEach(area => {
+        area.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+            this.style.background = 'rgba(255, 255, 255, 0.15)';
+        });
+        
+        area.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            this.style.background = 'rgba(255, 255, 255, 0.05)';
+        });
+        
+        area.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            this.style.background = 'rgba(255, 255, 255, 0.05)';
+            
+            const files = e.dataTransfer.files;
+            const type = this.id === 'photoUpload' ? 'photo' : 'video';
+            handleFileSelection(files, type);
+        });
+    });
+}
+
+// 处理文件选择
+function handleFileSelection(files, type) {
+    if (!files || files.length === 0) return;
+    
+    // 验证文件类型
+    const allowedTypes = {
+        photo: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        video: ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov', 'video/quicktime']
+    };
+    
+    for (let file of files) {
+        if (!allowedTypes[type].includes(file.type)) {
+            showNotification(`文件类型不支持：${file.name}`, 'error');
+            return;
+        }
+        
+        const maxSize = type === 'video' ? 100 * 1024 * 1024 : 50 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showNotification(`文件过大：${file.name}，最大支持${type === 'video' ? '100MB' : '50MB'}`, 'error');
+            return;
+        }
+    }
+    
+    currentFiles = Array.from(files);
+    showPreview(files, type);
+    showNotification(`已选择 ${files.length} 个文件`);
+}
+
+// 显示预览
+function showPreview(files, type) {
+    const previewContainer = document.getElementById(`${type}Preview`);
+    previewContainer.innerHTML = '';
+    
+    Array.from(files).forEach(file => {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+        
+        if (type === 'photo') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="预览">
+                    <span class="file-name">${file.name}</span>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewItem.innerHTML = `
+                <div class="video-icon">🎬</div>
+                <span class="file-name">${file.name}</span>
+            `;
+        }
+        
+        previewContainer.appendChild(previewItem);
+    });
+}
+
+// 清空预览
+function clearPreviews() {
+    document.getElementById('photoPreview').innerHTML = '';
+    document.getElementById('videoPreview').innerHTML = '';
+}
+
+// 上传文件到服务器
+async function uploadFiles(files, type) {
+    if (!files || files.length === 0) return [];
+    
+    const formData = new FormData();
+    
+    if (files.length === 1) {
+        // 单文件上传
+        formData.append('file', files[0]);
+        formData.append('type', type);
+        
+        const response = await fetch(`${API_BASE_URL}/upload`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            return [result.url];
+        } else {
+            throw new Error(result.message);
+        }
+    } else {
+        // 多文件上传
+        files.forEach(file => formData.append('files', file));
+        formData.append('type', type);
+        
+        const response = await fetch(`${API_BASE_URL}/upload/multiple`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            return result.urls;
+        } else {
+            throw new Error(result.message);
+        }
+    }
 }
 
 // 保存回忆
-function saveMemory() {
+async function saveMemory() {
     const title = document.getElementById('memoryTitle').value;
     const content = document.getElementById('memoryContent').value;
     const eventDate = document.getElementById('memoryDate').value;
+    const saveBtn = document.getElementById('saveBtn');
     
     if (!content || !eventDate) {
-        showNotification('Please fill in the required fields', 'error');
+        showNotification('请填写必需的字段：描述和日期', 'error');
         return;
     }
     
-    const memory = {
-        id: Date.now(),
-        type: currentUploadType,
-        title: title,
-        content: content,
-        eventDate: eventDate, // 事件发生的时间
-        createdAt: new Date().toISOString() // 创建时间
-    };
+    // 禁用按钮防止重复提交
+    saveBtn.disabled = true;
+    saveBtn.textContent = '保存中...';
     
-    // 根据类型处理媒体文件
-    if (currentUploadType === 'photo' && currentPhotos.length > 0) {
-        memory.photos = [...currentPhotos];
-        currentPhotos = []; // 清空临时存储
-    } else if (currentUploadType === 'video' && currentVideo) {
-        memory.video = currentVideo;
-        currentVideo = null; // 清空临时存储
-    }
-    
-    memories.push(memory);
-    localStorage.setItem('floraleaf_memories', JSON.stringify(memories));
-    
-    // 更新显示
-    updateTimeline();
-    
-    // 清空表单
-    document.getElementById('memoryTitle').value = '';
-    document.getElementById('memoryContent').value = '';
-    // 重置日期为当前时间
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('memoryDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
-    
-    showNotification('Memory saved successfully! 💕');
-}
-
-// 加载存储的数据
-function loadStoredData() {
-    // 加载回忆
-    memories.forEach(memory => {
-        // 对于每个记忆，如果它有媒体文件，则将它们添加到当前的临时存储中
-        if (memory.type === 'photo' && memory.photos) {
-            currentPhotos = [...memory.photos];
-        } else if (memory.type === 'video' && memory.video) {
-            currentVideo = memory.video;
+    try {
+        let mediaUrls = [];
+        
+        // 如果有文件，先上传文件
+        if (currentFiles.length > 0 && currentUploadType !== 'text') {
+            showNotification('正在上传文件...');
+            mediaUrls = await uploadFiles(currentFiles, currentUploadType);
         }
-    });
-    updateTimeline(); // 确保在加载数据后更新时间轴
-}
-
-// 处理照片上传
-let currentPhotos = [];
-document.getElementById('photoInput').addEventListener('change', function(e) {
-    const files = e.target.files;
-    handleFiles(files, 'photo');
-});
-
-// 处理视频上传
-let currentVideo = null;
-document.getElementById('videoInput').addEventListener('change', function(e) {
-    const files = e.target.files;
-    handleFiles(files, 'video');
-});
-
-// 处理文件上传
-function handleFiles(files, type) {
-    for (let file of files) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            if (type === 'photo') {
-                currentPhotos.push(e.target.result);
-                showNotification('Photo added successfully! 📸');
-            } else if (type === 'video') {
-                currentVideo = e.target.result;
-                showNotification('Video added successfully! 🎬');
-            }
+        
+        // 保存回忆数据
+        const memoryData = {
+            title: title || null,
+            content,
+            event_date: eventDate,
+            type: currentUploadType,
+            media_urls: mediaUrls
         };
-        reader.readAsDataURL(file);
+        
+        const response = await fetch(`${API_BASE_URL}/memories`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(memoryData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('回忆保存成功！💕');
+            
+            // 清空表单
+            document.getElementById('memoryTitle').value = '';
+            document.getElementById('memoryContent').value = '';
+            initializeDateInput();
+            currentFiles = [];
+            clearPreviews();
+            
+            // 重新加载数据
+            loadMemories();
+            
+            // 切换到时间轴页面
+            showSection('recording');
+        } else {
+            showNotification('保存失败：' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Save memory failed:', error);
+        showNotification('保存失败：' + error.message, 'error');
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 保存并发布';
     }
 }
 
 // 格式化日期显示
 function formatDate(dateString) {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleString('zh-CN', {
         year: 'numeric',
@@ -224,31 +504,6 @@ function formatDate(dateString) {
         minute: '2-digit'
     });
 }
-
-// 添加拖拽上传功能
-document.querySelectorAll('.upload-area').forEach(area => {
-    area.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-        this.style.background = 'rgba(255, 255, 255, 0.15)';
-    });
-    
-    area.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        this.style.background = 'rgba(255, 255, 255, 0.05)';
-    });
-    
-    area.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        this.style.background = 'rgba(255, 255, 255, 0.05)';
-        
-        const files = e.dataTransfer.files;
-        const type = this.id === 'photoUpload' ? 'photo' : 'video';
-        handleFiles(files, type);
-    });
-});
 
 // 显示通知消息
 function showNotification(message, type = 'success') {
@@ -265,6 +520,5 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// 初始化上传类型
-let currentUploadType = 'photo';
-switchUploadType('photo'); 
+// 初始化
+switchUploadType('photo');
