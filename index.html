@@ -6,10 +6,20 @@
     <title>All about Our Memoirs</title>
     <meta name="description" content="我们的生活">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- 登录模态框 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>🔐 请输入访问密码</h2>
+            <input type="password" id="passwordInput" placeholder="请输入密码" onkeypress="handlePasswordKeyPress(event)">
+            <button onclick="login()" class="login-btn">登录</button>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
         <header class="header">
             <h1>
                 <span class="title-prefix">All about</span>
@@ -18,6 +28,7 @@
                 &
                 <img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" alt="叶" class="emoji">
                 <img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" alt="叶" class="emoji">
+                <button class="logout-btn" onclick="logout()" title="退出登录">🚪</button>
             </h1>
             <p class="subtitle">Vivre sans aimer n'est pas proprement vivre.</p>
         </header>
@@ -34,8 +45,13 @@
                     <span class="sort-icon">⏱</span>
                     <span class="sort-text">最新优先</span>
                 </button>
+                <button class="refresh-btn" onclick="loadMemories()">
+                    <span class="refresh-icon">🔄</span>
+                    <span class="refresh-text">刷新</span>
+                </button>
             </div>
             
+            <div class="loading" id="timelineLoading" style="display: none;">加载中...</div>
             <div class="timeline" id="timeline">
                 <!-- 内容将通过 JavaScript 动态添加 -->
             </div>
@@ -56,6 +72,7 @@
                 <p>拖拽照片到这里或点击按钮选择</p>
                 <input type="file" id="photoInput" accept="image/*" multiple style="display: none;">
                 <button class="upload-btn" onclick="document.getElementById('photoInput').click()">选择照片</button>
+                <div class="upload-preview" id="photoPreview"></div>
             </div>
             
             <div class="upload-area hidden" id="videoUpload">
@@ -63,6 +80,7 @@
                 <p>拖拽视频到这里或点击按钮选择</p>
                 <input type="file" id="videoInput" accept="video/*" style="display: none;">
                 <button class="upload-btn" onclick="document.getElementById('videoInput').click()">选择视频</button>
+                <div class="upload-preview" id="videoPreview"></div>
             </div>
             
             <div class="form-group">
@@ -77,10 +95,10 @@
             
             <div class="form-group">
                 <label for="memoryContent">描述</label>
-                <textarea id="memoryContent" rows="5" placeholder="写下当下的感受吧！"></textarea>
+                <textarea id="memoryContent" rows="5" placeholder="写下当下的感受吧！" required></textarea>
             </div>
             
-            <button class="upload-btn submit-btn" onclick="saveMemory()">💾 保存并发布</button>
+            <button class="upload-btn submit-btn" onclick="saveMemory()" id="saveBtn">💾 保存并发布</button>
         </section>
     </div>
     
@@ -90,4 +108,4 @@
 
     <script src="assets/js/script.js"></script>
 </body>
-</html> 
+</html>
