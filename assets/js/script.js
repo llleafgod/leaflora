@@ -1,5 +1,5 @@
-// API 配置
-const API_BASE_URL = 'https://leaflora-backend-openapi.llleafgod.workers.dev';
+// 修改script.js文件中的API配置
+const API_BASE_URL = 'https://leaflora-backend-openapi.llleafgod.workers.dev/api';
 
 // 存储数据的变量
 let memories = [];
@@ -25,7 +25,7 @@ async function checkAuth() {
         return;
     }
     
-    // 验证 token 是否有效
+    // 验证token是否有效
     try {
         const response = await fetch(`${API_BASE_URL}/auth/verify`, {
             method: 'POST',
@@ -75,6 +75,8 @@ async function login() {
     }
     
     try {
+        console.log('Attempting login to:', `${API_BASE_URL}/auth/login`);
+        
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
@@ -83,7 +85,14 @@ async function login() {
             body: JSON.stringify({ password })
         });
         
+        console.log('Login response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const result = await response.json();
+        console.log('Login response data:', result);
         
         if (result.success) {
             authToken = result.token;
@@ -96,8 +105,8 @@ async function login() {
             errorElement.textContent = result.message || '登录失败';
         }
     } catch (error) {
-        console.error('Login failed:', error);
-        errorElement.textContent = '网络错误，请重试';
+        console.error('Login error details:', error);
+        errorElement.textContent = `网络错误：${error.message}`;
     }
 }
 
@@ -145,6 +154,10 @@ async function loadMemories() {
                 'Authorization': `Bearer ${authToken}`
             }
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const result = await response.json();
         
@@ -197,6 +210,10 @@ async function deleteMemory(id) {
                 'Authorization': `Bearer ${authToken}`
             }
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const result = await response.json();
         
@@ -392,6 +409,10 @@ async function uploadFiles(files, type) {
             body: formData
         });
         
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const result = await response.json();
         if (result.success) {
             return [result.url];
@@ -410,6 +431,10 @@ async function uploadFiles(files, type) {
             },
             body: formData
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const result = await response.json();
         if (result.success) {
@@ -462,6 +487,10 @@ async function saveMemory() {
             },
             body: JSON.stringify(memoryData)
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const result = await response.json();
         
