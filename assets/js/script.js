@@ -1,5 +1,5 @@
 // 修改script.js文件中的API配置
-const API_BASE_URL = 'https://leaflora-backend-openapi.llleafgod.workers.dev/api';
+const API_BASE_URL = '/api';
 
 // 存储数据的变量
 let memories = [];
