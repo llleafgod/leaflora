@@ -6,13 +6,13 @@
     <title>Our Memoirs</title>
     <meta name="description" content="我们的生活">
     <!-- favicon 设置 -->
-    <link rel="icon" href="assets/picture/logo.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="assets/picture/logo.png" type="image/png" sizes="40x40">
     <link rel="apple-touch-icon" href="assets/picture/logo.png" sizes="180x180">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-    <!-- 退出登录按钮 - 移到页面右上角 -->
-    <button class="logout-btn-fixed" onclick="logout()" title="退出登录">退出</button>
+    <!-- 退出登录按钮 - 移到页面右上角
+    <button class="logout-btn-fixed" onclick="logout()" title="退出登录">退出</button> -->
 
     <!-- 登录模态框 -->
     <div class="modal" id="loginModal">
@@ -28,15 +28,15 @@
         <header class="header">
             <h1>
                 <span class="title-prefix">All about</span>
-                <img src="assets/picture/flora.png" alt="花" class="emoji" width="80" height="80">
-                <img src="assets/picture/leaf.png" alt="叶" class="emoji" width="80" height="80">
+                <img src="assets/picture/flora.png" alt="花" class="emoji" width="160" height="80">
+                <img src="assets/picture/leaf.png" alt="叶" class="emoji" width="160" height="80">
             </h1>
             <p class="subtitle">Vivre sans aimer n'est pas proprement vivre.</p>
         </header>
         
         <nav class="nav">
-            <button class="nav-btn active" onclick="showSection('recording')">📸 Recording...</button>
-            <button class="nav-btn" onclick="showSection('upload')">➕ Upload</button>
+            <button class="nav-btn active" onclick="showSection('recording')">Recording...</button>
+            <button class="nav-btn" onclick="showSection('upload')">Upload</button>
         </nav>
         
         <!-- 时间轴记录部分 -->
@@ -85,7 +85,7 @@
             </div>
             
             <div class="form-group">
-                <label for="memoryTitle">标题 </label>
+                <label for="memoryTitle">标题</label>
                 <input type="text" id="memoryTitle" placeholder="（选填）">
             </div>
             
@@ -96,7 +96,7 @@
             
             <div class="form-group">
                 <label for="memoryContent">描述</label>
-                <!-- <textarea id="memoryContent" rows="5" placeholder="写下当下的感受吧！" required></textarea> -->
+                <textarea id="memoryContent" rows="5" placeholder="任何想说的话" required></textarea>
             </div>
             
             <button class="upload-btn submit-btn" onclick="saveMemory()" id="saveBtn">保存并发布</button>
