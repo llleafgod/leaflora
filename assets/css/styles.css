@@ -701,8 +701,8 @@ textarea::placeholder {
 
 /* 日期选择器样式 */
 input[type="datetime-local"] {
-    background: rgba(254, 245, 211, 0.6);
-    border: 1px solid rgba(155, 186, 157, 0.4);
+    background: rgba(234, 237, 237, 0.5); /* 从黄色改为灰色 */
+    border: 1px solid rgba(200, 205, 205, 0.5); /* 边框颜色调整 */
     border-radius: 10px;
     padding: 12px;
     color: #2d4a22;
@@ -712,8 +712,8 @@ input[type="datetime-local"] {
 }
 
 input[type="datetime-local"]:focus {
-    background: rgba(254, 245, 211, 0.8);
-    border-color: rgba(69, 134, 26, 0.5);
+    background: rgba(234, 237, 237, 0.7); /* 聚焦时背景色 */
+    border-color: rgba(180, 185, 185, 0.7); /* 聚焦时边框颜色 */
     outline: none;
 }
 
