@@ -131,12 +131,12 @@ body::after {
 }
 
 .modal-content {
-    background: rgba(254, 245, 211, 0.95);
+    background: rgba(234, 237, 237, 0.95); /* 从黄色改为灰色 */
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 20px 60px rgba(69, 134, 26, 0.2);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(155, 186, 157, 0.3);
+    border: 1px solid rgba(200, 205, 205, 0.5); /* 边框颜色也调整 */
     text-align: center;
     min-width: 350px;
     animation: slideDown 0.3s ease;
@@ -151,19 +151,19 @@ body::after {
 .modal-content input {
     width: 100%;
     padding: 15px;
-    border: 2px solid rgba(155, 186, 157, 0.3);
+    border: 2px solid rgba(200, 205, 205, 0.5); /* 边框颜色调整 */
     border-radius: 10px;
     font-size: 16px;
     margin-bottom: 15px;
-    background: rgba(254, 245, 211, 0.8);
+    background: rgba(234, 237, 237, 0.8); /* 从黄色改为灰色 */
     color: #2d4a22;
     transition: all 0.3s ease;
 }
 
 .modal-content input:focus {
     outline: none;
-    border-color: rgba(69, 134, 26, 0.5);
-    background: rgba(254, 245, 211, 1);
+    border-color: rgba(180, 185, 185, 0.7); /* 聚焦时边框颜色 */
+    background: rgba(234, 237, 237, 0.95); /* 聚焦时背景色 */
 }
 
 .login-btn {
@@ -677,8 +677,8 @@ body::after {
 .form-group textarea {
     width: 100%;
     padding: 12px;
-    background: rgba(254, 245, 211, 0.6);
-    border: 1px solid rgba(155, 186, 157, 0.4);
+    background: rgba(234, 237, 237, 0.5); /* 从黄色改为灰色 */
+    border: 1px solid rgba(200, 205, 205, 0.5); /* 边框颜色调整 */
     border-radius: 10px;
     font-size: 14px;
     color: #2d4a22;
@@ -688,8 +688,8 @@ body::after {
 .form-group input:focus, 
 .form-group textarea:focus {
     outline: none;
-    background: rgba(254, 245, 211, 0.8);
-    border-color: rgba(69, 134, 26, 0.5);
+    background: rgba(234, 237, 237, 0.7); /* 聚焦时背景色 */
+    border-color: rgba(180, 185, 185, 0.7); /* 聚焦时边框颜色 */
 }
 
 /* 占位符文字样式 */
