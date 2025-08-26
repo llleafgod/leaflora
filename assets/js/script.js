@@ -494,7 +494,7 @@ async function saveMemory() {
         const result = await response.json();
         
         if (result.success) {
-            showNotification('回忆保存成功！💕');
+            showNotification('保存成功！');
             
             // 清空表单
             document.getElementById('memoryTitle').value = '';
@@ -516,7 +516,7 @@ async function saveMemory() {
         showNotification('保存失败：' + error.message, 'error');
     } finally {
         saveBtn.disabled = false;
-        saveBtn.textContent = '💾 保存并发布';
+        saveBtn.textContent = '保存并发布';
     }
 }
 
