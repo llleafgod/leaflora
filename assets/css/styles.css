@@ -68,7 +68,7 @@ body::before {
     top: 0;
     left: 0;
     width: 100%;
-    height: auto;
+    height: 300px; /* 设置一个具体高度而不是auto */
     background-image: url('../picture/background1.png');
     background-repeat: no-repeat;
     background-position: top center;
@@ -91,7 +91,7 @@ body::after {
     z-index: -1; /* 确保在内容后面 */
 }
 
-/* 固定位置的退出登录按钮 */
+/* 固定位置的退出登录按钮
 .logout-btn-fixed {
     position: fixed;
     top: 20px;
@@ -113,7 +113,7 @@ body::after {
     background: rgba(214, 52, 71, 0.25);
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-}
+} */
 
 /* 登录模态框样式 */
 .modal {
@@ -381,12 +381,12 @@ body::after {
 
 .timeline-date {
     position: absolute;
-    top: -15px;
+    top: -10px; /* 从-15px改为-10px，缩短与上边框的距离 */
     left: 20px;
     color: #2d4a22;
     font-size: 0.9em;
     background: rgba(254, 245, 211, 0.9);
-    padding: 5px 15px;
+    padding: 4px 12px; /* 减小内边距 */
     border-radius: 15px;
     backdrop-filter: blur(4px);
     border: 1px solid rgba(155, 186, 157, 0.3);
@@ -429,7 +429,7 @@ body::after {
 .timeline-posted {
     font-size: 0.8em;
     color: #68a63f;
-    margin-top: 15px;
+    margin-top: 10px; /* 从15px减为10px */
     text-align: right;
     font-style: italic;
 }
@@ -437,8 +437,8 @@ body::after {
 /* 删除按钮样式 */
 .delete-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px; /* 从15px改为10px */
+    right: 10px; /* 从15px改为10px */
     background: rgba(214, 52, 71, 0.2);
     border: none;
     border-radius: 50%;
@@ -809,12 +809,12 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     }
     
     .timeline::before {
-        left: 20px;
+        left: 10px; /* 将时间轴线更靠近左侧 */
     }
     
     .timeline-content {
-        margin-left: 40px;
-        max-width: calc(100% - 60px);
+        margin-left: 20px; /* 减小左侧边距 */
+        max-width: calc(100% - 30px); /* 增加内容框宽度 */
     }
     
     .timeline-date {
