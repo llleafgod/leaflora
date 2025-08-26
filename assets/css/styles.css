@@ -16,18 +16,6 @@
     }
 }
 
-@keyframes float {
-    0% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-20px);
-    }
-    100% {
-        transform: translateY(0px);
-    }
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -64,11 +52,35 @@
 
 body {
     font-family: 'Microsoft YaHei', Arial, sans-serif;
-    background: linear-gradient(-45deg, #f6f8ff, #f0f4ff, #e8ecff, #f2f6ff);
+    background: linear-gradient(-45deg, #fef6d9, #fcf3cc, #fef5d3, #eaeded);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
     min-height: 100vh;
-    color: #333;
+    color: #2d4a22;
+}
+
+/* 固定位置的退出登录按钮 */
+.logout-btn-fixed {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(214, 52, 71, 0.15);
+    border: 1px solid rgba(214, 52, 71, 0.2);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    z-index: 999;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.logout-btn-fixed:hover {
+    background: rgba(214, 52, 71, 0.25);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
 /* 登录模态框样式 */
@@ -78,28 +90,28 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(45, 74, 34, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
 }
 
 .modal-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(254, 245, 211, 0.95);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 60px rgba(31, 38, 135, 0.3);
+    box-shadow: 0 20px 60px rgba(69, 134, 26, 0.2);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(155, 186, 157, 0.3);
     text-align: center;
     min-width: 350px;
     animation: slideDown 0.3s ease;
 }
 
 .modal-content h2 {
-    color: #566270;
+    color: #45861a;
     margin-bottom: 25px;
     font-size: 1.5em;
 }
@@ -107,24 +119,24 @@ body {
 .modal-content input {
     width: 100%;
     padding: 15px;
-    border: 2px solid rgba(142, 154, 175, 0.3);
+    border: 2px solid rgba(155, 186, 157, 0.3);
     border-radius: 10px;
     font-size: 16px;
     margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.8);
-    color: #3a4149;
+    background: rgba(254, 245, 211, 0.8);
+    color: #2d4a22;
     transition: all 0.3s ease;
 }
 
 .modal-content input:focus {
     outline: none;
-    border-color: rgba(86, 98, 112, 0.5);
-    background: rgba(255, 255, 255, 1);
+    border-color: rgba(69, 134, 26, 0.5);
+    background: rgba(254, 245, 211, 1);
 }
 
 .login-btn {
     width: 100%;
-    background: rgba(86, 98, 112, 0.8);
+    background: rgba(69, 134, 26, 0.8);
     color: white;
     border: none;
     padding: 15px;
@@ -136,7 +148,7 @@ body {
 }
 
 .login-btn:hover {
-    background: rgba(86, 98, 112, 1);
+    background: rgba(69, 134, 26, 1);
     transform: translateY(-2px);
 }
 
@@ -147,40 +159,27 @@ body {
     min-height: 20px;
 }
 
-/* 退出登录按钮 */
+/* 移除原来的退出登录按钮样式（因为已移到固定位置） */
 .logout-btn {
-    background: rgba(255, 99, 99, 0.2);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-left: 15px;
-    font-size: 16px;
-}
-
-.logout-btn:hover {
-    background: rgba(255, 99, 99, 0.3);
-    transform: scale(1.1);
+    display: none;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 60px 20px 20px 20px; /* 增加顶部padding为固定按钮留空间 */
 }
 
 .header {
     text-align: center;
     margin-bottom: 40px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(155, 186, 157, 0.2);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    box-shadow: 0 8px 32px rgba(69, 134, 26, 0.1);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    animation: float 6s ease-in-out infinite;
+    border: 1px solid rgba(173, 200, 151, 0.3);
+    /* 移除浮动动画 */
 }
 
 .header h1 {
@@ -191,12 +190,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: #566270;
+    color: #45861a;
 }
 
 .header h1 .title-prefix {
     font-size: 0.7em;
-    color: #8e9aaf;
+    color: #68a63f;
     margin-right: 5px;
 }
 
@@ -204,6 +203,7 @@ body {
     width: 40px;
     height: 40px;
     transition: transform 0.3s ease;
+    border-radius: 8px; /* 为PNG图片添加圆角 */
 }
 
 .header h1 .emoji:hover {
@@ -212,7 +212,7 @@ body {
 
 .header .subtitle {
     font-size: 0.9em;
-    color: #8e9aaf;
+    color: #68a63f;
     font-style: italic;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     font-family: 'Times New Roman', serif;
@@ -228,8 +228,8 @@ body {
 }
 
 .nav-btn {
-    background: rgba(142, 154, 175, 0.15);
-    color: #566270;
+    background: rgba(155, 186, 157, 0.2);
+    color: #2d4a22;
     border: none;
     padding: 15px 30px;
     border-radius: 50px;
@@ -238,19 +238,20 @@ body {
     font-weight: bold;
     transition: all 0.3s ease;
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(142, 154, 175, 0.2);
+    border: 1px solid rgba(173, 200, 151, 0.3);
 }
 
 .nav-btn:hover {
-    background: rgba(142, 154, 175, 0.25);
+    background: rgba(155, 186, 157, 0.35);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(69, 134, 26, 0.1);
 }
 
 .nav-btn.active {
-    background: rgba(86, 98, 112, 0.2);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    color: #3a4149;
+    background: rgba(69, 134, 26, 0.2);
+    box-shadow: 0 4px 15px rgba(69, 134, 26, 0.1);
+    color: #2d4a22;
+    border-color: rgba(69, 134, 26, 0.3);
 }
 
 /* 时间轴控制按钮 */
@@ -263,9 +264,9 @@ body {
 }
 
 .sort-btn, .refresh-btn {
-    background: rgba(142, 154, 175, 0.2);
-    border: 1px solid rgba(142, 154, 175, 0.3);
-    color: #3a4149;
+    background: rgba(155, 186, 157, 0.25);
+    border: 1px solid rgba(173, 200, 151, 0.4);
+    color: #2d4a22;
     padding: 10px 20px;
     border-radius: 20px;
     cursor: pointer;
@@ -278,24 +279,24 @@ body {
 }
 
 .sort-btn:hover, .refresh-btn:hover {
-    background: rgba(142, 154, 175, 0.3);
+    background: rgba(155, 186, 157, 0.4);
     transform: translateY(-1px);
 }
 
 .sort-icon, .refresh-icon {
     font-size: 1.2em;
-    color: #3a4149;
+    color: #45861a;
 }
 
 .sort-text, .refresh-text {
-    color: #3a4149;
+    color: #2d4a22;
 }
 
 /* 加载状态 */
 .loading {
     text-align: center;
     padding: 40px;
-    color: #566270;
+    color: #68a63f;
     font-size: 18px;
     animation: pulse 1.5s ease-in-out infinite;
 }
@@ -313,7 +314,7 @@ body {
     transform: translateX(-50%);
     width: 2px;
     height: 100%;
-    background: rgba(142, 154, 175, 0.3);
+    background: rgba(143, 187, 128, 0.4);
     top: 0;
 }
 
@@ -326,12 +327,12 @@ body {
 }
 
 .timeline-content {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(254, 245, 211, 0.4);
     border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    box-shadow: 0 8px 32px rgba(69, 134, 26, 0.1);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(173, 200, 151, 0.3);
     position: relative;
     max-width: 600px;
     width: 100%;
@@ -340,21 +341,21 @@ body {
 
 .timeline-content:hover {
     transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+    background: rgba(254, 245, 211, 0.6);
+    box-shadow: 0 12px 40px rgba(69, 134, 26, 0.15);
 }
 
 .timeline-date {
     position: absolute;
     top: -15px;
     left: 20px;
-    color: #3a4149;
+    color: #2d4a22;
     font-size: 0.9em;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(254, 245, 211, 0.9);
     padding: 5px 15px;
     border-radius: 15px;
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(142, 154, 175, 0.2);
+    border: 1px solid rgba(155, 186, 157, 0.3);
     font-weight: 500;
 }
 
@@ -381,19 +382,19 @@ body {
 }
 
 .timeline-text {
-    color: #566270;
+    color: #2d4a22;
     line-height: 1.6;
 }
 
 .timeline-text h3 {
     margin-bottom: 10px;
-    color: #566270;
+    color: #45861a;
     font-size: 1.2em;
 }
 
 .timeline-posted {
     font-size: 0.8em;
-    color: #8e9aaf;
+    color: #68a63f;
     margin-top: 15px;
     text-align: right;
     font-style: italic;
@@ -404,7 +405,7 @@ body {
     position: absolute;
     top: 15px;
     right: 15px;
-    background: rgba(255, 99, 99, 0.2);
+    background: rgba(214, 52, 71, 0.2);
     border: none;
     border-radius: 50%;
     width: 32px;
@@ -420,7 +421,7 @@ body {
 }
 
 .delete-btn:hover {
-    background: rgba(255, 99, 99, 0.3);
+    background: rgba(214, 52, 71, 0.3);
     transform: scale(1.1);
 }
 
@@ -433,22 +434,22 @@ body {
 .empty-message {
     text-align: center;
     padding: 60px 20px;
-    color: #8e9aaf;
+    color: #68a63f;
     font-size: 1.2em;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(155, 186, 157, 0.2);
     border-radius: 20px;
-    border: 2px dashed rgba(142, 154, 175, 0.3);
+    border: 2px dashed rgba(143, 187, 128, 0.4);
 }
 
 /* 主要内容区域 */
 .section {
     display: none;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(155, 186, 157, 0.15);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+    box-shadow: 0 8px 32px rgba(69, 134, 26, 0.1);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(173, 200, 151, 0.3);
     margin-bottom: 30px;
 }
 
@@ -458,7 +459,7 @@ body {
 }
 
 .section h2 {
-    color: #3a4149;
+    color: #45861a;
     font-weight: 600;
     font-size: 1.8em;
     margin-bottom: 25px;
@@ -475,9 +476,9 @@ body {
 }
 
 .upload-type-btn {
-    background: rgba(142, 154, 175, 0.15);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-    color: #3a4149;
+    background: rgba(155, 186, 157, 0.2);
+    border: 1px solid rgba(173, 200, 151, 0.3);
+    color: #2d4a22;
     padding: 12px 24px;
     border-radius: 20px;
     cursor: pointer;
@@ -488,21 +489,21 @@ body {
 }
 
 .upload-type-btn:hover {
-    background: rgba(142, 154, 175, 0.25);
+    background: rgba(155, 186, 157, 0.35);
     transform: translateY(-1px);
 }
 
 .upload-type-btn.active {
-    background: rgba(86, 98, 112, 0.2);
-    border-color: rgba(86, 98, 112, 0.3);
-    color: #3a4149;
+    background: rgba(69, 134, 26, 0.2);
+    border-color: rgba(69, 134, 26, 0.3);
+    color: #2d4a22;
     font-weight: 600;
 }
 
 /* 上传区域样式 */
 .upload-area {
-    background: rgba(255, 255, 255, 0.3);
-    border: 2px dashed rgba(142, 154, 175, 0.3);
+    background: rgba(254, 245, 211, 0.4);
+    border: 2px dashed rgba(143, 187, 128, 0.4);
     border-radius: 15px;
     padding: 40px;
     text-align: center;
@@ -511,20 +512,20 @@ body {
 }
 
 .upload-area:hover {
-    background: rgba(255, 255, 255, 0.4);
-    border-color: rgba(86, 98, 112, 0.4);
+    background: rgba(254, 245, 211, 0.6);
+    border-color: rgba(69, 134, 26, 0.5);
 }
 
 .upload-area h3 {
     font-size: 1.2em;
-    color: #3a4149;
+    color: #45861a;
     margin-bottom: 10px;
     font-weight: 600;
 }
 
 .upload-area p {
     font-size: 0.9em;
-    color: #566270;
+    color: #2d4a22;
     margin-bottom: 15px;
 }
 
@@ -541,11 +542,11 @@ body {
 }
 
 .preview-item {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(254, 245, 211, 0.3);
     border-radius: 10px;
     padding: 15px;
     text-align: center;
-    border: 1px solid rgba(142, 154, 175, 0.2);
+    border: 1px solid rgba(155, 186, 157, 0.3);
 }
 
 .preview-item img {
@@ -559,19 +560,19 @@ body {
 .video-icon {
     font-size: 48px;
     margin-bottom: 10px;
-    color: #566270;
+    color: #68a63f;
 }
 
 .file-name {
     font-size: 12px;
-    color: #8e9aaf;
+    color: #68a63f;
     word-break: break-word;
 }
 
 /* 通用按钮样式 */
 .upload-btn {
-    background: rgba(86, 98, 112, 0.2);
-    color: #3a4149;
+    background: rgba(69, 134, 26, 0.2);
+    color: #2d4a22;
     border: none;
     padding: 12px 25px;
     border-radius: 25px;
@@ -579,19 +580,19 @@ body {
     font-size: 14px;
     margin: 5px;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(173, 200, 151, 0.3);
     font-weight: 500;
 }
 
 .upload-btn:hover {
-    background: rgba(86, 98, 112, 0.3);
+    background: rgba(69, 134, 26, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(69, 134, 26, 0.2);
 }
 
 .upload-btn:disabled {
-    background: rgba(142, 154, 175, 0.2);
-    color: #8e9aaf;
+    background: rgba(155, 186, 157, 0.2);
+    color: #68a63f;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -599,8 +600,8 @@ body {
 
 /* 提交按钮 */
 .submit-btn {
-    background: rgba(86, 98, 112, 0.25);
-    color: #3a4149;
+    background: rgba(69, 134, 26, 0.25);
+    color: #2d4a22;
     font-weight: 600;
     font-size: 1.1em;
     padding: 15px 30px;
@@ -609,7 +610,7 @@ body {
 }
 
 .submit-btn:hover:not(:disabled) {
-    background: rgba(86, 98, 112, 0.35);
+    background: rgba(69, 134, 26, 0.35);
     transform: translateY(-2px);
 }
 
@@ -621,7 +622,7 @@ body {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #3a4149;
+    color: #2d4a22;
     font-weight: 500;
     font-size: 1em;
 }
@@ -630,43 +631,43 @@ body {
 .form-group textarea {
     width: 100%;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(142, 154, 175, 0.3);
+    background: rgba(254, 245, 211, 0.6);
+    border: 1px solid rgba(155, 186, 157, 0.4);
     border-radius: 10px;
     font-size: 14px;
-    color: #3a4149;
+    color: #2d4a22;
     transition: all 0.3s ease;
 }
 
 .form-group input:focus, 
 .form-group textarea:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(86, 98, 112, 0.5);
+    background: rgba(254, 245, 211, 0.8);
+    border-color: rgba(69, 134, 26, 0.5);
 }
 
 /* 占位符文字样式 */
 input::placeholder,
 textarea::placeholder {
-    color: #8e9aaf !important;
+    color: #68a63f !important;
     opacity: 0.8;
 }
 
 /* 日期选择器样式 */
 input[type="datetime-local"] {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(142, 154, 175, 0.3);
+    background: rgba(254, 245, 211, 0.6);
+    border: 1px solid rgba(155, 186, 157, 0.4);
     border-radius: 10px;
     padding: 12px;
-    color: #3a4149;
+    color: #2d4a22;
     font-size: 14px;
     width: 100%;
     transition: all 0.3s ease;
 }
 
 input[type="datetime-local"]:focus {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(86, 98, 112, 0.5);
+    background: rgba(254, 245, 211, 0.8);
+    border-color: rgba(69, 134, 26, 0.5);
     outline: none;
 }
 
@@ -676,24 +677,24 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     padding: 5px;
     border-radius: 5px;
     transition: all 0.3s ease;
-    background-color: rgba(142, 154, 175, 0.2);
+    background-color: rgba(155, 186, 157, 0.2);
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     filter: opacity(1);
-    background-color: rgba(142, 154, 175, 0.3);
+    background-color: rgba(155, 186, 157, 0.3);
 }
 
 input[type="datetime-local"]::-webkit-datetime-edit {
-    color: #3a4149;
+    color: #2d4a22;
 }
 
 input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
-    color: #3a4149;
+    color: #2d4a22;
 }
 
 input[type="datetime-local"]::-webkit-datetime-edit-text {
-    color: #3a4149;
+    color: #2d4a22;
     opacity: 0.8;
 }
 
@@ -702,26 +703,26 @@ input[type="datetime-local"]::-webkit-datetime-edit-day-field,
 input[type="datetime-local"]::-webkit-datetime-edit-year-field,
 input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
 input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
-    color: #3a4149;
+    color: #2d4a22;
 }
 
 /* 通知样式 */
 .notification {
     position: fixed;
     top: 20px;
-    right: 20px;
+    right: 80px; /* 调整位置避免与退出按钮重叠 */
     padding: 15px 25px;
     border-radius: 50px;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(254, 245, 211, 0.5);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(142, 154, 175, 0.2);
-    color: #3a4149;
+    border: 1px solid rgba(155, 186, 157, 0.3);
+    color: #2d4a22;
     font-size: 14px;
     font-weight: 500;
     transform: translateX(150%);
     transition: transform 0.3s ease;
     z-index: 1000;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(69, 134, 26, 0.1);
 }
 
 .notification.show {
@@ -729,15 +730,15 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
 }
 
 .notification.success {
-    background: rgba(46, 213, 115, 0.15);
-    color: #2a9d68;
-    border-color: rgba(46, 213, 115, 0.3);
+    background: rgba(155, 186, 157, 0.3);
+    color: #45861a;
+    border-color: rgba(69, 134, 26, 0.3);
 }
 
 .notification.error {
-    background: rgba(255, 71, 87, 0.15);
+    background: rgba(214, 52, 71, 0.15);
     color: #d63447;
-    border-color: rgba(255, 71, 87, 0.3);
+    border-color: rgba(214, 52, 71, 0.3);
 }
 
 /* 底部文字 */
