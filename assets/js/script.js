@@ -1,4 +1,3 @@
-// 修改script.js文件中的API配置
 const API_BASE_URL = 'https://api.leaflora.dpdns.org/api';
 
 // 存储数据的变量
@@ -266,7 +265,7 @@ function updateTimeline() {
                     ${memory.title ? `<h3>${memory.title}</h3>` : ''}
                     <p>${memory.content}</p>
                 </div>
-                <div class="timeline-posted">发布于: ${formatDate(memory.created_at)}</div>
+                <div class="timeline-posted">${formatDate(memory.created_at)}</div>
             </div>
         `;
         
