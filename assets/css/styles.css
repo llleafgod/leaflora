@@ -231,6 +231,18 @@ body::after {
     margin-right: 5px;
 }
 
+/* 头部标志图片样式 */
+.header-logo {
+    height: 80px;
+    width: auto;
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+}
+
+.header-logo:hover {
+    transform: scale(1.1);
+}
+
 .header h1 .emoji {
     width: 40px;
     height: 40px;
@@ -470,9 +482,9 @@ body::after {
     padding: 60px 20px;
     color: #68a63f;
     font-size: 1.2em;
-    background: rgba(155, 186, 157, 0.2);
+    background: rgba(234, 237, 237, 0.4); /* 从绿色改为灰色 */
     border-radius: 20px;
-    border: 2px dashed rgba(143, 187, 128, 0.4);
+    border: 2px dashed rgba(200, 205, 205, 0.6); /* 边框也改为灰色系 */
 }
 
 /* 主要内容区域 */
@@ -536,8 +548,8 @@ body::after {
 
 /* 上传区域样式 */
 .upload-area {
-    background: rgba(254, 245, 211, 0.4);
-    border: 2px dashed rgba(143, 187, 128, 0.4);
+    background: rgba(234, 237, 237, 0.4); /* 从黄色改为灰色 */
+    border: 2px dashed rgba(200, 205, 205, 0.6); /* 边框也改为灰色系 */
     border-radius: 15px;
     padding: 40px;
     text-align: center;
@@ -546,8 +558,8 @@ body::after {
 }
 
 .upload-area:hover {
-    background: rgba(254, 245, 211, 0.6);
-    border-color: rgba(69, 134, 26, 0.5);
+    background: rgba(234, 237, 237, 0.6); /* 悬停状态也改为灰色系 */
+    border-color: rgba(180, 185, 185, 0.8);
 }
 
 .upload-area h3 {
@@ -576,11 +588,11 @@ body::after {
 }
 
 .preview-item {
-    background: rgba(254, 245, 211, 0.3);
+    background: rgba(234, 237, 237, 0.3); /* 从黄色改为灰色 */
     border-radius: 10px;
     padding: 15px;
     text-align: center;
-    border: 1px solid rgba(155, 186, 157, 0.3);
+    border: 1px solid rgba(200, 205, 205, 0.5); /* 边框颜色也调整 */
 }
 
 .preview-item img {
@@ -795,6 +807,11 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
         flex-wrap: wrap;
     }
     
+    /* 在平板设备上调整标志图片大小 */
+    .header-logo {
+        height: 60px; /* 稍微减小高度 */
+    }
+    
     .nav {
         flex-direction: row; /* 改为水平排列 */
         align-items: center;
@@ -873,6 +890,11 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     
     .header h1 {
         font-size: 1.6em;
+    }
+    
+    /* 在手机设备上调整标志图片大小 */
+    .header-logo {
+        height: 40px; /* 根据需求减小到40px */
     }
     
     .section {
