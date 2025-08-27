@@ -256,7 +256,10 @@ function updateTimeline() {
         
         timelineItem.innerHTML = `
             <div class="timeline-content">
-                <button class="delete-btn" onclick="deleteMemory(${memory.id})" title="删除这条回忆"></button>
+                <div class="timeline-actions">
+                    <button class="edit-btn" onclick="editMemory(${memory.id})" title="编辑这条回忆"></button>
+                    <button class="delete-btn" onclick="deleteMemory(${memory.id})" title="删除这条回忆"></button>
+                </div>
                 <div class="timeline-date">${formatDate(memory.event_date)}</div>
                 ${mediaContent ? `<div class="timeline-media">${mediaContent}</div>` : ''}
                 <div class="timeline-text">
@@ -288,12 +291,26 @@ function switchUploadType(type) {
 
 // 设置文件输入事件
 function setupFileInputs() {
-    document.getElementById('photoInput').addEventListener('change', function(e) {
+    // 针对照片输入
+    const photoInput = document.getElementById('photoInput');
+    photoInput.addEventListener('change', function(e) {
         handleFileSelection(e.target.files, 'photo');
+        
+        // 针对移动设备优化：重置input允许再次选择相同文件
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+            this.value = ''; // 在处理完文件后清空input值，允许再次选择相同文件
+        }
     });
     
-    document.getElementById('videoInput').addEventListener('change', function(e) {
+    // 针对视频输入
+    const videoInput = document.getElementById('videoInput');
+    videoInput.addEventListener('change', function(e) {
         handleFileSelection(e.target.files, 'video');
+        
+        // 针对移动设备优化：重置input允许再次选择相同文件
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+            this.value = ''; // 在处理完文件后清空input值，允许再次选择相同文件
+        }
     });
 }
 
@@ -520,6 +537,98 @@ async function saveMemory() {
     } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = '保存并发布';
+    }
+}
+
+// 编辑回忆
+function editMemory(memoryId) {
+    // 从存储的回忆中找到当前要编辑的回忆
+    const memory = memories.find(m => m.id === memoryId);
+    if (!memory) {
+        showNotification('找不到回忆数据', 'error');
+        return;
+    }
+    
+    // 填充表单
+    document.getElementById('editMemoryTitle').value = memory.title || '';
+    document.getElementById('editMemoryContent').value = memory.content || '';
+    
+    // 处理日期格式以适应日期输入控件
+    const eventDate = new Date(memory.event_date);
+    const formattedDate = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
+    document.getElementById('editMemoryDate').value = formattedDate;
+    
+    // 存储回忆ID以便更新
+    document.getElementById('editMemoryId').value = memoryId;
+    
+    // 显示模态框
+    document.getElementById('editMemoryModal').style.display = 'flex';
+}
+
+// 关闭编辑模态框
+function closeEditModal() {
+    document.getElementById('editMemoryModal').style.display = 'none';
+}
+
+// 更新回忆
+async function updateMemory() {
+    const memoryId = document.getElementById('editMemoryId').value;
+    const title = document.getElementById('editMemoryTitle').value;
+    const content = document.getElementById('editMemoryContent').value;
+    const eventDate = document.getElementById('editMemoryDate').value;
+    const updateBtn = document.getElementById('updateBtn');
+    
+    if (!content || !eventDate) {
+        showNotification('请填写必需的字段：描述和日期', 'error');
+        return;
+    }
+    
+    // 禁用按钮防止重复提交
+    updateBtn.disabled = true;
+    updateBtn.textContent = '保存中...';
+    
+    try {
+        // 创建日期对象并转换为ISO格式
+        const eventDateObj = new Date(eventDate);
+        const formattedEventDate = eventDateObj.toISOString();
+        
+        // 保存回忆数据
+        const memoryData = {
+            title: title || null,
+            content,
+            event_date: formattedEventDate
+        };
+        
+        const response = await fetch(`${API_BASE_URL}/memories/${memoryId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(memoryData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('更新成功！');
+            closeEditModal();
+            
+            // 重新加载数据
+            loadMemories();
+        } else {
+            showNotification('更新失败：' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Update memory failed:', error);
+        showNotification('更新失败：' + error.message, 'error');
+    } finally {
+        updateBtn.disabled = false;
+        updateBtn.textContent = '保存修改';
     }
 }
 
