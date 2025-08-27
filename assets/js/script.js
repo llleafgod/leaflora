@@ -264,7 +264,7 @@ function updateTimeline() {
                 ${mediaContent ? `<div class="timeline-media">${mediaContent}</div>` : ''}
                 <div class="timeline-text">
                     ${memory.title ? `<h3>${memory.title}</h3>` : ''}
-                    <p>${memory.content}</p>
+                    <p>${formatContent(memory.content)}</p>
                 </div>
                 <div class="timeline-posted">${formatDateTime(memory.created_at)}</div>
             </div>
@@ -630,6 +630,12 @@ async function updateMemory() {
         updateBtn.disabled = false;
         updateBtn.textContent = '保存修改';
     }
+}
+
+// 格式化内容，将换行符转换为<br>标签
+function formatContent(content) {
+    if (!content) return '';
+    return content.replace(/\n/g, '<br>');
 }
 
 // 格式化日期显示（仅显示日期）
