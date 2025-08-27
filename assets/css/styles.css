@@ -883,6 +883,7 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     }
 }
 
+/* 添加手机端删除按钮样式 */
 @media (max-width: 480px) {
     .header {
         padding: 20px;
@@ -897,9 +898,19 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
         height: 40px; /* 根据需求减小到40px */
     }
     
+    /* 手机端调整删除按钮尺寸 */
+    .delete-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        top: 8px;
+        right: 8px;
+    }
+    
     .section {
         padding: 20px;
     }
+    
     
     .upload-area {
         padding: 25px 15px;
