@@ -205,12 +205,12 @@ body::after {
 .header {
     text-align: center;
     margin-bottom: 40px;
-    background: rgba(155, 186, 157, 0.2);
+    background: rgba(69, 134, 26, 0.15);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(69, 134, 26, 0.1);
+    box-shadow: 0 8px 32px rgba(69, 134, 26, 0.15);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(173, 200, 151, 0.3);
+    border: 1px solid rgba(69, 134, 26, 0.25);
     /* 移除浮动动画 */
 }
 
@@ -222,12 +222,12 @@ body::after {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: #45861a;
+    color: #2d4a22;
 }
 
 .header h1 .title-prefix {
     font-size: 0.7em;
-    color: #68a63f;
+    color: #45861a;
     margin-right: 5px;
 }
 
@@ -256,7 +256,7 @@ body::after {
 
 .header .subtitle {
     font-size: 0.9em;
-    color: #68a63f;
+    color: #45861a;
     font-style: italic;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     font-family: 'Times New Roman', serif;
@@ -407,14 +407,14 @@ body::after {
 
 .timeline-media {
     margin-bottom: 15px;
-    border-radius: 15px;
+    border-radius: 6px;
     overflow: hidden;
 }
 
 .timeline-media img {
     width: 100%;
     height: auto;
-    border-radius: 15px;
+    border-radius: 6px;
     transition: transform 0.3s ease;
 }
 
@@ -424,7 +424,7 @@ body::after {
 
 .timeline-media video {
     width: 100%;
-    border-radius: 15px;
+    border-radius: 6px;
 }
 
 .timeline-text {
@@ -599,7 +599,7 @@ body::after {
     width: 100%;
     height: 120px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 4px;
     margin-bottom: 10px;
 }
 
