@@ -469,14 +469,19 @@ async function saveMemory() {
             mediaUrls = await uploadFiles(currentFiles, currentUploadType);
         }
         
+        // 解析日期时间字符串，确保正确传递给服务器
+        const eventDateObj = new Date(eventDate);
+        const formattedEventDate = eventDateObj.toISOString();
+        
         // 保存回忆数据
         const memoryData = {
             title: title || null,
             content,
-            event_date: eventDate,
+            event_date: formattedEventDate,
             type: currentUploadType,
             media_urls: mediaUrls
         };
+        
         
         const response = await fetch(`${API_BASE_URL}/memories`, {
             method: 'POST',
@@ -523,13 +528,26 @@ async function saveMemory() {
 // 格式化日期显示
 function formatDate(dateString) {
     if (!dateString) return '';
+    
+    // 解析输入的日期字符串
     const date = new Date(dateString);
-    return date.toLocaleString('zh-CN', {
+    
+    // 创建一个新的日期，使用UTC来避免时区问题
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    
+    const localDate = new Date(year, month, day, hours, minutes);
+    
+    return localDate.toLocaleString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        hour12: false // 使用24小时制
     });
 }
 
