@@ -263,7 +263,7 @@ function updateTimeline() {
                     ${memory.title ? `<h3>${memory.title}</h3>` : ''}
                     <p>${memory.content}</p>
                 </div>
-                <div class="timeline-posted">${formatDate(memory.created_at)}</div>
+                <div class="timeline-posted">${formatDateTime(memory.created_at)}</div>
             </div>
         `;
         
@@ -523,7 +523,7 @@ async function saveMemory() {
     }
 }
 
-// 格式化日期显示
+// 格式化日期显示（仅显示日期）
 function formatDate(dateString) {
     if (!dateString) return '';
     
@@ -541,6 +541,23 @@ function formatDate(dateString) {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
+    });
+}
+
+// 格式化日期时间显示（包含时间）
+function formatDateTime(dateString) {
+    if (!dateString) return '';
+    
+    // 解析输入的日期字符串
+    const date = new Date(dateString);
+    
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false // 使用24小时制
     });
 }
 
