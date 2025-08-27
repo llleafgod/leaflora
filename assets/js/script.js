@@ -134,9 +134,7 @@ function initializeDateInput() {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('memoryDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('memoryDate').value = `${year}-${month}-${day}`;
 }
 
 // 加载回忆数据
@@ -532,22 +530,17 @@ function formatDate(dateString) {
     // 解析输入的日期字符串
     const date = new Date(dateString);
     
-    // 创建一个新的日期，使用UTC来避免时区问题
+    // 创建一个新的日期
     const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
     
-    const localDate = new Date(year, month, day, hours, minutes);
+    const localDate = new Date(year, month, day);
     
     return localDate.toLocaleString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false // 使用24小时制
+        day: '2-digit'
     });
 }
 
