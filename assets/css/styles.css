@@ -175,6 +175,13 @@ body::after {
     transition: all 0.3s ease;
 }
 
+.modal-content textarea {
+    resize: vertical; /* 允许垂直调整大小 */
+    min-height: 120px; /* 设置最小高度 */
+    white-space: pre-wrap; /* 保留换行和空格 */
+    line-height: 1.5; /* 增加行高，提高可读性 */
+}
+
 .modal-content input:focus, .modal-content textarea:focus {
     outline: none;
     border-color: rgba(180, 185, 185, 0.7); /* 聚焦时边框颜色 */
@@ -445,6 +452,11 @@ body::after {
 .timeline-text {
     color: #2d4a22;
     line-height: 1.6;
+}
+
+.timeline-text p {
+    white-space: pre-line; /* 保留换行符和空格 */
+    word-wrap: break-word; /* 长单词自动换行 */
 }
 
 .timeline-text h3 {
