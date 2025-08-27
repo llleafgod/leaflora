@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Memoirs</title>
+    <title>LeaFlora树洞</title>
     <meta name="description" content="我们的生活">
     <!-- favicon 设置 -->
     <link rel="icon" href="assets/picture/logo.png" type="image/png" sizes="40x40">
@@ -79,7 +79,7 @@
             <div class="upload-area hidden" id="videoUpload">
                 <h3>上传视频</h3>
                 <p>拖拽视频到这里或点击按钮选择</p>
-                <input type="file" id="videoInput" accept="video/*" style="display: none;">
+                <input type="file" id="videoInput" accept="video/*" multiple style="display: none;">
                 <button class="upload-btn" onclick="document.getElementById('videoInput').click()">选择视频</button>
                 <div class="upload-preview" id="videoPreview"></div>
             </div>
@@ -106,6 +106,32 @@
     <footer class="footer">
         <p>FlorandLeaf © 2025 | 我们的年年岁岁</p>
     </footer>
+
+    <!-- 编辑回忆模态框 -->
+    <div id="editMemoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h2>编辑回忆</h2>
+            
+            <div class="form-group">
+                <label for="editMemoryTitle">标题</label>
+                <input type="text" id="editMemoryTitle" placeholder="（选填）">
+            </div>
+            
+            <div class="form-group">
+                <label for="editMemoryDate">日期</label>
+                <input type="date" id="editMemoryDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="editMemoryContent">描述</label>
+                <textarea id="editMemoryContent" rows="5" placeholder="任何想说的话" required></textarea>
+            </div>
+            
+            <input type="hidden" id="editMemoryId">
+            <button class="upload-btn submit-btn" onclick="updateMemory()" id="updateBtn">保存修改</button>
+        </div>
+    </div>
 
     <script src="assets/js/script.js"></script>
 </body>
