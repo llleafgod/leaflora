@@ -72,7 +72,10 @@
                 <h3>上传照片</h3>
                 <p>拖拽照片到这里或点击按钮选择</p>
                 <input type="file" id="photoInput" accept="image/*" multiple style="display: none;">
-                <button class="upload-btn" onclick="document.getElementById('photoInput').click()">选择照片</button>
+                <div class="upload-buttons">
+                    <button class="upload-btn" onclick="document.getElementById('photoInput').click()">选择照片</button>
+                    <button class="clear-btn" onclick="clearCurrentFiles('photo')" id="photoClearBtn" style="display: none;">清空选择</button>
+                </div>
                 <div class="upload-preview" id="photoPreview"></div>
             </div>
             
@@ -80,8 +83,20 @@
                 <h3>上传视频</h3>
                 <p>拖拽视频到这里或点击按钮选择</p>
                 <input type="file" id="videoInput" accept="video/*" multiple style="display: none;">
-                <button class="upload-btn" onclick="document.getElementById('videoInput').click()">选择视频</button>
+                <div class="upload-buttons">
+                    <button class="upload-btn" onclick="document.getElementById('videoInput').click()">选择视频</button>
+                    <button class="clear-btn" onclick="clearCurrentFiles('video')" id="videoClearBtn" style="display: none;">清空选择</button>
+                </div>
                 <div class="upload-preview" id="videoPreview"></div>
+            </div>
+            
+            <div class="upload-area hidden" id="textUpload">
+                <h3>文字记录</h3>
+                <!-- <p>记录没有图片或视频的美好时刻</p> -->
+                <div class="text-upload-info">
+                    <span class="text-icon">📝</span>
+                    <p>直接在下方填写内容即可</p>
+                </div>
             </div>
             
             <div class="form-group">
@@ -109,7 +124,7 @@
 
     <!-- 编辑回忆模态框 -->
     <div id="editMemoryModal" class="modal" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content edit-modal-content">
             <span class="close-btn" onclick="closeEditModal()">&times;</span>
             <h2>编辑</h2>
             
@@ -123,12 +138,43 @@
                 <input type="date" id="editMemoryDate" required>
             </div>
             
+            <!-- 媒体文件编辑区域 -->
+            <div class="form-group">
+                <label>图片/视频</label>
+                <div class="edit-media-section">
+                    <div class="current-media" id="currentMediaDisplay">
+                        <!-- 当前媒体文件将在这里显示 -->
+                    </div>
+                    
+                    <div class="media-edit-controls">
+                        <div class="upload-type-selector">
+                            <label>添加文件类型：</label>
+                            <button type="button" class="media-type-btn active" onclick="switchEditUploadType('photo')" id="editPhotoBtn">📸 照片</button>
+                            <button type="button" class="media-type-btn" onclick="switchEditUploadType('video')" id="editVideoBtn">🎬 视频</button>
+                        </div>
+                        
+                        <div class="edit-upload-area" id="editPhotoUpload">
+                            <input type="file" id="editPhotoInput" accept="image/*" multiple style="display: none;">
+                            <button type="button" class="upload-btn small-btn" onclick="document.getElementById('editPhotoInput').click()">添加照片</button>
+                            <div class="edit-preview" id="editPhotoPreview"></div>
+                        </div>
+                        
+                        <div class="edit-upload-area hidden" id="editVideoUpload">
+                            <input type="file" id="editVideoInput" accept="video/*" multiple style="display: none;">
+                            <button type="button" class="upload-btn small-btn" onclick="document.getElementById('editVideoInput').click()">添加视频</button>
+                            <div class="edit-preview" id="editVideoPreview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label for="editMemoryContent">描述</label>
                 <textarea id="editMemoryContent" rows="5" placeholder="任何想说的话" required></textarea>
             </div>
             
             <input type="hidden" id="editMemoryId">
+            <input type="hidden" id="editMemoryType">
             <button class="upload-btn submit-btn" onclick="updateMemory()" id="updateBtn">保存修改</button>
         </div>
     </div>
