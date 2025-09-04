@@ -13,6 +13,9 @@ let editCurrentFiles = [];
 let editCurrentUploadType = 'photo';
 let editDeletedMediaUrls = [];
 
+// 图片查看相关的变量
+let memoriesImageData = {}; // 存储每个回忆的图片数据
+
 // 页面加载时初始化
 window.addEventListener('load', function() {
     checkAuth();
@@ -248,10 +251,13 @@ function updateTimeline() {
         
         let mediaContent = '';
         if (memory.type === 'photo' && memory.media_urls && memory.media_urls.length > 0) {
+            // 存储图片数据以供模态框使用
+            memoriesImageData[memory.id] = memory.media_urls;
+            
             if (memory.media_urls.length === 1) {
                 // 单张图片直接显示
                 mediaContent = `<div class="single-image">
-                    <img src="${memory.media_urls[0]}" alt="${memory.title || '照片'}" loading="lazy" onclick="openImageModal('${memory.media_urls[0]}', 0, ${JSON.stringify(memory.media_urls).replace(/"/g, '&quot;')})">
+                    <img src="${memory.media_urls[0]}" alt="${memory.title || '照片'}" loading="lazy" onclick="openImageModal(${memory.id}, 0)">
                 </div>`;
             } else {
                 // 多张图片使用轮播
@@ -291,7 +297,7 @@ function createImageCarousel(imageUrls, memoryId, alt) {
     const carouselId = `carousel-${memoryId}`;
     const imagesHtml = imageUrls.map((url, index) => `
         <div class="carousel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-            <img src="${url}" alt="${alt}" loading="lazy" onclick="openImageModal('${url}', ${index}, ${JSON.stringify(imageUrls).replace(/"/g, '&quot;')})">
+            <img src="${url}" alt="${alt}" loading="lazy" onclick="openImageModal(${memoryId}, ${index})">
         </div>
     `).join('');
     
@@ -392,9 +398,28 @@ let currentImageModal = null;
 let currentImageIndex = 0;
 let currentImageUrls = [];
 
-function openImageModal(imageUrl, index, imageUrls) {
+function openImageModal(memoryId, index) {
+    console.log('Opening image modal for memory:', memoryId, 'at index:', index);
+    
+    // 从全局存储中获取图片URLs
+    const imageUrls = memoriesImageData[memoryId];
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+        console.error('No image data found for memory:', memoryId);
+        showNotification('图片数据不存在', 'error');
+        return;
+    }
+    
+    // 验证索引有效性
+    if (index < 0 || index >= imageUrls.length) {
+        console.error('Invalid image index:', index, 'for memory:', memoryId);
+        index = 0; // 默认显示第一张
+    }
+    
     currentImageIndex = index;
-    currentImageUrls = JSON.parse(imageUrls.replace(/&quot;/g, '"'));
+    currentImageUrls = imageUrls;
+    
+    const currentImageUrl = imageUrls[index];
+    console.log('Displaying image:', currentImageUrl, 'from array:', imageUrls);
     
     // 创建模态框
     const modal = document.createElement('div');
@@ -404,11 +429,11 @@ function openImageModal(imageUrl, index, imageUrls) {
     const modalHtml = `
         <div class="modal-backdrop" onclick="closeImageModal()"></div>
         <div class="modal-image-container">
-            <img src="${imageUrl}" alt="查看大图" id="modalImage">
-            ${currentImageUrls.length > 1 ? `
+            <img src="${currentImageUrl}" alt="查看大图" id="modalImage">
+            ${imageUrls.length > 1 ? `
                 <button class="modal-nav modal-prev" onclick="prevModalImage()" aria-label="上一张">‹</button>
                 <button class="modal-nav modal-next" onclick="nextModalImage()" aria-label="下一张">›</button>
-                <div class="modal-counter">${index + 1} / ${currentImageUrls.length}</div>
+                <div class="modal-counter">${index + 1} / ${imageUrls.length}</div>
             ` : ''}
             <button class="modal-close" onclick="closeImageModal()" aria-label="关闭">×</button>
         </div>
@@ -428,6 +453,8 @@ function openImageModal(imageUrl, index, imageUrls) {
     setTimeout(() => {
         modal.classList.add('show');
     }, 10);
+    
+    console.log('Image modal opened successfully');
 }
 
 function closeImageModal() {
@@ -901,13 +928,17 @@ function displayCurrentMedia(memory) {
         return;
     }
     
+    // 为编辑模态框临时存储图片数据
+    const tempEditKey = `edit_${memory.id}`;
+    memoriesImageData[tempEditKey] = memory.media_urls;
+    
     let mediaHtml = '<div class="current-media-grid">';
     
     memory.media_urls.forEach((url, index) => {
         if (memory.type === 'photo') {
             mediaHtml += `
                 <div class="current-media-item" data-url="${url}">
-                    <img src="${url}" alt="当前图片" onclick="openImageModal('${url}', ${index}, ${JSON.stringify(memory.media_urls).replace(/"/g, '&quot;')})">
+                    <img src="${url}" alt="当前图片" onclick="openImageModal('${tempEditKey}', ${index})">
                     <button class="remove-current-media" onclick="removeCurrentMedia('${url}')" title="删除此文件">×</button>
                 </div>
             `;
