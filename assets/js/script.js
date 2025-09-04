@@ -522,15 +522,19 @@ function updateModalImage() {
     // 更新Instagram风格的进度条
     const progressBars = document.querySelectorAll('.modal-progress-bar');
     progressBars.forEach((bar, index) => {
-        // 移除所有active类，重置动画
-        bar.classList.remove('active');
+        // 重置所有状态类
+        bar.classList.remove('active', 'completed');
         
-        if (index === currentImageIndex) {
-            // 使用requestAnimationFrame确保动画重新开始
+        if (index < currentImageIndex) {
+            // 已完成的图片
+            bar.classList.add('completed');
+        } else if (index === currentImageIndex) {
+            // 当前图片 - 开始进度动画
             requestAnimationFrame(() => {
                 bar.classList.add('active');
             });
         }
+        // index > currentImageIndex 的保持默认状态（未开始）
     });
 }
 
