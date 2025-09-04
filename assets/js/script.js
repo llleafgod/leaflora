@@ -15,6 +15,12 @@ let editDeletedMediaUrls = [];
 
 // 图片查看相关的变量
 let memoriesImageData = {}; // 存储每个回忆的图片数据
+let currentImageModal = null;
+let currentImageUrls = [];
+let currentImageIndex = 0;
+let autoPlayInterval = null;
+let isAutoPlaying = false;
+const AUTO_PLAY_DELAY = 3000; // 3秒自动切换
 
 // 页面加载时初始化
 window.addEventListener('load', function() {
@@ -394,10 +400,6 @@ function updateCarousel(slides, dots, counter, index) {
 }
 
 // 图片模态框相关函数
-let currentImageModal = null;
-let currentImageIndex = 0;
-let currentImageUrls = [];
-
 function openImageModal(memoryId, index) {
     console.log('Opening image modal for memory:', memoryId, 'at index:', index);
     
@@ -434,6 +436,7 @@ function openImageModal(memoryId, index) {
                 <button class="modal-nav modal-prev" onclick="prevModalImage()" aria-label="上一张">‹</button>
                 <button class="modal-nav modal-next" onclick="nextModalImage()" aria-label="下一张">›</button>
                 <div class="modal-counter">${index + 1} / ${imageUrls.length}</div>
+                <button class="modal-play-pause" onclick="toggleAutoPlay()" id="playPauseBtn" title="播放/暂停 (空格键)">⏸️</button>
             ` : ''}
             <button class="modal-close" onclick="closeImageModal()" aria-label="关闭">×</button>
         </div>
@@ -452,12 +455,19 @@ function openImageModal(memoryId, index) {
     // 添加显示动画
     setTimeout(() => {
         modal.classList.add('show');
+        // 如果有多张图片，启动自动播放
+        if (imageUrls.length > 1) {
+            startAutoPlay();
+        }
     }, 10);
     
     console.log('Image modal opened successfully');
 }
 
 function closeImageModal() {
+    // 停止自动播放
+    stopAutoPlay();
+    
     if (currentImageModal) {
         currentImageModal.classList.remove('show');
         setTimeout(() => {
@@ -476,11 +486,21 @@ function closeImageModal() {
 function nextModalImage() {
     currentImageIndex = (currentImageIndex + 1) % currentImageUrls.length;
     updateModalImage();
+    
+    // 如果是手动操作，重新启动自动播放
+    if (isAutoPlaying) {
+        startAutoPlay();
+    }
 }
 
 function prevModalImage() {
     currentImageIndex = (currentImageIndex - 1 + currentImageUrls.length) % currentImageUrls.length;
     updateModalImage();
+    
+    // 如果是手动操作，重新启动自动播放
+    if (isAutoPlaying) {
+        startAutoPlay();
+    }
 }
 
 function updateModalImage() {
@@ -511,6 +531,47 @@ function handleModalKeydown(event) {
                 nextModalImage();
             }
             break;
+        case ' ': // 空格键暂停/播放
+            event.preventDefault();
+            toggleAutoPlay();
+            break;
+    }
+}
+
+// 自动播放控制函数
+function startAutoPlay() {
+    if (currentImageUrls.length <= 1) return;
+    
+    stopAutoPlay();
+    isAutoPlaying = true;
+    autoPlayInterval = setInterval(() => {
+        nextModalImage();
+    }, AUTO_PLAY_DELAY);
+    
+    console.log('Auto play started');
+}
+
+function stopAutoPlay() {
+    if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+    }
+    isAutoPlaying = false;
+    console.log('Auto play stopped');
+}
+
+function toggleAutoPlay() {
+    if (isAutoPlaying) {
+        stopAutoPlay();
+    } else {
+        startAutoPlay();
+    }
+    
+    // 更新按钮显示
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    if (playPauseBtn) {
+        playPauseBtn.innerHTML = isAutoPlaying ? '⏸️' : '▶️';
+        playPauseBtn.title = isAutoPlaying ? '暂停 (空格键)' : '播放 (空格键)';
     }
 }
 
