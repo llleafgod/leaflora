@@ -42,16 +42,23 @@
         <!-- 时间轴记录部分 -->
         <section class="section active" id="recording">
             <div class="timeline-controls">
-                <button class="sort-btn" onclick="toggleTimelineSort()">
-                    <span class="sort-icon">⏱</span>
-                    <span class="sort-text">最新优先</span>
-                </button>
-                <button class="refresh-btn" onclick="loadMemories()">
-                    <!-- <span class="refresh-icon">🔄</span> -->
-                    <span class="refresh-text">刷新</span>
-                </button>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索标题或内容..." onkeyup="performSearch()">
+                    <input type="date" id="dateSearchInput" class="date-search-input" title="按日期筛选" onchange="performSearch()">
+                    <button class="clear-search-btn" onclick="clearSearch()" title="清除搜索">✕</button>
+                </div>
+                <div class="control-buttons">
+                    <button class="sort-btn" onclick="toggleTimelineSort()">
+                        <span class="sort-icon">⏱</span>
+                        <span class="sort-text">最新优先</span>
+                    </button>
+                    <button class="refresh-btn" onclick="loadMemories()">
+                        <span class="refresh-text">刷新</span>
+                    </button>
+                </div>
             </div>
             
+            <div class="search-status" id="searchStatus" style="display: none;"></div>
             <div class="loading" id="timelineLoading" style="display: none;">加载中...</div>
             <div class="timeline" id="timeline">
                 <!-- 内容将通过 JavaScript 动态添加 -->
@@ -62,41 +69,15 @@
         <section class="section" id="upload">
             <h2>树洞投稿处</h2>
             
-            <div class="upload-options">
-                <button class="upload-type-btn active" onclick="switchUploadType('photo')">📸 Photo</button>
-                <button class="upload-type-btn" onclick="switchUploadType('video')">🎬 Video</button>
-                <button class="upload-type-btn" onclick="switchUploadType('text')">📝 Text</button>
-            </div>
-            
-            <div class="upload-area" id="photoUpload">
-                <h3>上传照片</h3>
-                <p>拖拽照片到这里或点击按钮选择</p>
-                <input type="file" id="photoInput" accept="image/*" multiple style="display: none;">
+            <div class="upload-area" id="mediaUpload">
+                <h3>上传照片或视频</h3>
+                <p>拖拽图片/视频到这里或点击按钮选择</p>
+                <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display: none;">
                 <div class="upload-buttons">
-                    <button class="upload-btn" onclick="document.getElementById('photoInput').click()">选择照片</button>
-                    <button class="clear-btn" onclick="clearCurrentFiles('photo')" id="photoClearBtn" style="display: none;">清空选择</button>
+                    <button class="upload-btn" onclick="document.getElementById('mediaInput').click()">选择文件</button>
+                    <button class="clear-btn" onclick="clearCurrentFiles()" id="mediaClearBtn" style="display: none;">清空选择</button>
                 </div>
-                <div class="upload-preview" id="photoPreview"></div>
-            </div>
-            
-            <div class="upload-area hidden" id="videoUpload">
-                <h3>上传视频</h3>
-                <p>拖拽视频到这里或点击按钮选择</p>
-                <input type="file" id="videoInput" accept="video/*" multiple style="display: none;">
-                <div class="upload-buttons">
-                    <button class="upload-btn" onclick="document.getElementById('videoInput').click()">选择视频</button>
-                    <button class="clear-btn" onclick="clearCurrentFiles('video')" id="videoClearBtn" style="display: none;">清空选择</button>
-                </div>
-                <div class="upload-preview" id="videoPreview"></div>
-            </div>
-            
-            <div class="upload-area hidden" id="textUpload">
-                <h3>文字记录</h3>
-                <!-- <p>记录没有图片或视频的美好时刻</p> -->
-                <div class="text-upload-info">
-                    <span class="text-icon">📝</span>
-                    <p>直接在下方填写内容即可</p>
-                </div>
+                <div class="upload-preview" id="mediaPreview"></div>
             </div>
             
             <div class="form-group">
@@ -147,22 +128,10 @@
                     </div>
                     
                     <div class="media-edit-controls">
-                        <div class="upload-type-selector">
-                            <label>添加文件类型：</label>
-                            <button type="button" class="media-type-btn active" onclick="switchEditUploadType('photo')" id="editPhotoBtn">📸 照片</button>
-                            <button type="button" class="media-type-btn" onclick="switchEditUploadType('video')" id="editVideoBtn">🎬 视频</button>
-                        </div>
-                        
-                        <div class="edit-upload-area" id="editPhotoUpload">
-                            <input type="file" id="editPhotoInput" accept="image/*" multiple style="display: none;">
-                            <button type="button" class="upload-btn small-btn" onclick="document.getElementById('editPhotoInput').click()">添加照片</button>
-                            <div class="edit-preview" id="editPhotoPreview"></div>
-                        </div>
-                        
-                        <div class="edit-upload-area hidden" id="editVideoUpload">
-                            <input type="file" id="editVideoInput" accept="video/*" multiple style="display: none;">
-                            <button type="button" class="upload-btn small-btn" onclick="document.getElementById('editVideoInput').click()">添加视频</button>
-                            <div class="edit-preview" id="editVideoPreview"></div>
+                        <div class="edit-upload-area" id="editMediaUpload">
+                            <input type="file" id="editMediaInput" accept="image/*,video/*" multiple style="display: none;">
+                            <button type="button" class="upload-btn small-btn" onclick="document.getElementById('editMediaInput').click()">添加文件</button>
+                            <div class="edit-preview" id="editMediaPreview"></div>
                         </div>
                     </div>
                 </div>
