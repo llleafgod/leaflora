@@ -323,10 +323,87 @@ body::after {
 /* 时间轴控制按钮 */
 .timeline-controls {
     display: flex;
-    justify-content: center;
-    gap: 10px;  /* 减小按钮之间的间距 */
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 30px;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
     flex-wrap: wrap;
+    justify-content: center;
+}
+
+.search-input {
+    padding: 10px 15px;
+    border: 1px solid rgba(173, 200, 151, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d4a22;
+    font-size: 14px;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: rgba(69, 134, 26, 0.6);
+    box-shadow: 0 0 0 3px rgba(69, 134, 26, 0.1);
+}
+
+.date-search-input {
+    padding: 10px 15px;
+    border: 1px solid rgba(173, 200, 151, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d4a22;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.date-search-input:focus {
+    outline: none;
+    border-color: rgba(69, 134, 26, 0.6);
+    box-shadow: 0 0 0 3px rgba(69, 134, 26, 0.1);
+}
+
+.clear-search-btn {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #cc0000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.clear-search-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-status {
+    text-align: center;
+    padding: 10px 15px;
+    background: rgba(69, 134, 26, 0.1);
+    border: 1px solid rgba(69, 134, 26, 0.2);
+    border-radius: 8px;
+    color: #2d4a22;
+    font-size: 14px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(4px);
 }
 
 .sort-btn, .refresh-btn {
@@ -883,6 +960,31 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
         left: 5px; /* 将时间轴线更靠近左侧 */
     }
     
+    .search-container {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .search-input {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .date-search-input {
+        width: 100%;
+        max-width: 150px;
+    }
+    
+    .control-buttons {
+        gap: 8px;
+    }
+    
+    .sort-btn, .refresh-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
     .timeline-content {
         margin-left: 10px; /* 减小左侧边距 */
         max-width: calc(100% - 20px); /* 增加内容框宽度 */
@@ -1167,6 +1269,19 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     transform: scale(1.02);
 }
 
+.carousel-slide video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    background: #000;
+}
+
+.carousel-slide video:hover {
+    transform: scale(1.02);
+}
+
 .carousel-btn {
     position: absolute;
     top: 50%;
@@ -1263,6 +1378,23 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     transform: scale(1.02);
 }
 
+.single-video {
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.single-video video {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    cursor: pointer;
+    background: #000;
+}
+
 /* 图片模态框样式 */
 .image-modal {
     position: fixed;
@@ -1309,6 +1441,15 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal-image-container video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: #000;
 }
 
 .modal-nav {
@@ -1421,6 +1562,15 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     border-radius: 2px;
 }
 
+/* 视频模态框特殊样式 */
+.video-modal .modal-progress-bar.active {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.video-modal .modal-progress-bar.active::after {
+    display: none; /* 视频不需要时间填充动画，依赖视频本身的播放进度 */
+}
+
 @keyframes progressFill {
     from {
         width: 0;
@@ -1487,6 +1637,25 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
         max-height: 300px;
     }
     
+    .modal-image-container {
+        max-width: 98%;
+        max-height: 90%;
+    }
+    
+    .modal-image-container img {
+        border-radius: 4px;
+    }
+    
+    .modal-progress-container {
+        bottom: 10px;
+        left: 15px;
+        right: 15px;
+    }
+    
+    .modal-progress-bar {
+        height: 3px;
+    }
+    
     .modal-nav {
         width: 40px;
         height: 40px;
@@ -1510,9 +1679,51 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     }
     
     .modal-counter {
-        bottom: -30px;
+        bottom: -50px;
         font-size: 12px;
         padding: 4px 8px;
+    }
+}
+
+/* 更小屏幕的额外优化 */
+@media (max-width: 480px) {
+    .modal-image-container {
+        max-width: 100%;
+        max-height: 92%;
+    }
+    
+    .modal-progress-container {
+        bottom: 8px;
+        left: 10px;
+        right: 10px;
+        gap: 2px;
+    }
+    
+    .modal-counter {
+        bottom: -45px;
+        font-size: 11px;
+    }
+    
+    .modal-nav {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .modal-prev {
+        left: -45px;
+    }
+    
+    .modal-next {
+        right: -45px;
+    }
+    
+    .modal-close {
+        top: -25px;
+        right: -25px;
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
     }
 }
 
