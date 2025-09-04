@@ -1735,24 +1735,23 @@ let isTouching = false;
 
 // 设置图片模态框触摸事件
 function setupImageModalTouchEvents(modal) {
-    const imageContainer = modal.querySelector('.modal-image-container');
-    if (!imageContainer) return;
+    if (!modal) return;
     
     isImageModalTouchEnabled = true;
     
-    // 触摸开始
-    imageContainer.addEventListener('touchstart', handleImageModalTouchStart, { passive: false });
+    // 将触摸事件绑定到整个模态框，扩大触摸区域
+    modal.addEventListener('touchstart', handleImageModalTouchStart, { passive: false });
     
     // 触摸移动
-    imageContainer.addEventListener('touchmove', handleImageModalTouchMove, { passive: false });
+    modal.addEventListener('touchmove', handleImageModalTouchMove, { passive: false });
     
     // 触摸结束
-    imageContainer.addEventListener('touchend', handleImageModalTouchEnd, { passive: false });
+    modal.addEventListener('touchend', handleImageModalTouchEnd, { passive: false });
     
     // 触摸取消（当触摸被中断时）
-    imageContainer.addEventListener('touchcancel', handleImageModalTouchCancel, { passive: false });
+    modal.addEventListener('touchcancel', handleImageModalTouchCancel, { passive: false });
     
-    console.log('Image modal touch events set up');
+    console.log('Image modal touch events set up for entire modal');
 }
 
 // 处理触摸开始
@@ -1818,26 +1817,24 @@ function handleImageModalSwipe() {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
     
-    // 计算滑动距离和方向
-    const minSwipeDistance = 80; // 增加最小滑动距离
-    const maxVerticalDistance = 120; // 增加最大垂直距离容忍度
+    // 计算滑动距离和方向 - 降低最小滑动距离，使触发更容易
+    const minSwipeDistance = 50; // 从80降低到50，更容易触发
+    const maxVerticalDistance = 150; // 增加垂直容忍度
     
     console.log('Swipe detection:', 'deltaX:', deltaX, 'deltaY:', deltaY);
     
     // 确保是水平滑动且滑动距离足够
     if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < maxVerticalDistance) {
-        // 确保水平距离明显大于垂直距离
-        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        // 降低水平/垂直比例要求，使触发更容易
+        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
             if (deltaX > 0) {
                 // 向右滑动 - 上一张
                 console.log('Swipe right detected - previous image');
                 prevModalImage();
-                showSwipeDirection('right');
             } else {
                 // 向左滑动 - 下一张
                 console.log('Swipe left detected - next image');
                 nextModalImage();
-                showSwipeDirection('left');
             }
         }
     }
@@ -1847,44 +1844,6 @@ function handleImageModalSwipe() {
     touchStartY = 0;
     touchEndX = 0;
     touchEndY = 0;
-}
-
-// 显示滑动方向反馈
-function showSwipeDirection(direction) {
-    const modal = currentImageModal;
-    if (!modal) return;
-    
-    const indicator = document.createElement('div');
-    indicator.className = 'swipe-indicator';
-    indicator.textContent = direction === 'left' ? '→' : '←';
-    indicator.style.cssText = `
-        position: absolute;
-        top: 50%;
-        ${direction === 'left' ? 'right: 20px' : 'left: 20px'};
-        transform: translateY(-50%);
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
-        background: rgba(255, 255, 255, 0.2);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(10px);
-        animation: swipeIndicator 0.6s ease forwards;
-        z-index: 1001;
-    `;
-    
-    modal.appendChild(indicator);
-    
-    // 1秒后移除指示器
-    setTimeout(() => {
-        if (indicator.parentNode) {
-            indicator.parentNode.removeChild(indicator);
-        }
-    }, 600);
 }
 
 // 清理触摸事件
