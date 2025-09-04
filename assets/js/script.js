@@ -413,6 +413,14 @@ function updateTimeline() {
         
         timeline.appendChild(timelineItem);
     });
+    
+    // 为所有轮播组件设置触摸事件
+    setTimeout(() => {
+        const carousels = document.querySelectorAll('.image-carousel, .video-carousel');
+        carousels.forEach(carousel => {
+            setupCarouselTouchEvents(carousel);
+        });
+    }, 100); // 延迟确保DOM元素已完全渲染
 }
 
 // 创建图片轮播组件
@@ -1733,6 +1741,14 @@ let isImageModalTouchEnabled = false;
 let touchStartTime = 0;
 let isTouching = false;
 
+// 小图轮播触摸相关变量
+let carouselTouchStartX = 0;
+let carouselTouchStartY = 0;
+let carouselTouchEndX = 0;
+let carouselTouchEndY = 0;
+let carouselTouchStartTime = 0;
+let carouselIsTouching = false;
+
 // 设置图片模态框触摸事件
 function setupImageModalTouchEvents(modal) {
     if (!modal) return;
@@ -1855,6 +1871,109 @@ function cleanupImageModalTouchEvents() {
     touchEndX = 0;
     touchEndY = 0;
     touchStartTime = 0;
+}
+
+// 小图轮播触摸事件处理
+function setupCarouselTouchEvents(carousel) {
+    if (!carousel) return;
+    
+    const carouselContainer = carousel.querySelector('.carousel-container');
+    if (!carouselContainer) return;
+    
+    carouselContainer.addEventListener('touchstart', handleCarouselTouchStart, { passive: false });
+    carouselContainer.addEventListener('touchmove', handleCarouselTouchMove, { passive: false });
+    carouselContainer.addEventListener('touchend', handleCarouselTouchEnd, { passive: false });
+    carouselContainer.addEventListener('touchcancel', handleCarouselTouchCancel, { passive: false });
+    
+    console.log('Carousel touch events set up for:', carousel.id);
+}
+
+function handleCarouselTouchStart(e) {
+    if (e.touches.length > 1) return;
+    
+    const touch = e.touches[0];
+    carouselTouchStartX = touch.clientX;
+    carouselTouchStartY = touch.clientY;
+    carouselTouchStartTime = Date.now();
+    carouselIsTouching = true;
+    
+    console.log('Carousel touch start:', carouselTouchStartX, carouselTouchStartY);
+}
+
+function handleCarouselTouchMove(e) {
+    if (!carouselIsTouching) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - carouselTouchStartX;
+    const deltaY = touch.clientY - carouselTouchStartY;
+    
+    // 如果主要是水平移动，阻止默认行为（防止页面滚动）
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        e.preventDefault();
+    }
+}
+
+function handleCarouselTouchEnd(e) {
+    if (!carouselIsTouching) return;
+    
+    const touch = e.changedTouches[0];
+    carouselTouchEndX = touch.clientX;
+    carouselTouchEndY = touch.clientY;
+    const touchEndTime = Date.now();
+    
+    carouselIsTouching = false;
+    
+    // 检查是否是有效的滑动手势
+    const touchDuration = touchEndTime - carouselTouchStartTime;
+    if (touchDuration < 1000) { // 滑动时间小于1秒
+        handleCarouselSwipe(e.target);
+    }
+    
+    console.log('Carousel touch end:', carouselTouchEndX, carouselTouchEndY, 'Duration:', touchDuration);
+}
+
+function handleCarouselTouchCancel(e) {
+    carouselIsTouching = false;
+    console.log('Carousel touch cancelled');
+}
+
+function handleCarouselSwipe(target) {
+    const deltaX = carouselTouchEndX - carouselTouchStartX;
+    const deltaY = carouselTouchEndY - carouselTouchStartY;
+    
+    // 计算滑动距离和方向
+    const minSwipeDistance = 50; // 最小滑动距离
+    const maxVerticalDistance = 150; // 最大垂直距离容忍度
+    
+    console.log('Carousel swipe detection:', 'deltaX:', deltaX, 'deltaY:', deltaY);
+    
+    // 确保是水平滑动且滑动距离足够
+    if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < maxVerticalDistance) {
+        // 确保水平距离明显大于垂直距离
+        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+            // 找到对应的轮播容器
+            const carousel = target.closest('.image-carousel') || target.closest('.video-carousel');
+            if (carousel) {
+                const carouselId = carousel.id;
+                
+                if (deltaX > 0) {
+                    // 向右滑动 - 上一张
+                    console.log('Carousel swipe right detected - previous slide');
+                    prevSlide(carouselId);
+                } else {
+                    // 向左滑动 - 下一张
+                    console.log('Carousel swipe left detected - next slide');
+                    nextSlide(carouselId);
+                }
+            }
+        }
+    }
+    
+    // 重置触摸坐标
+    carouselTouchStartX = 0;
+    carouselTouchStartY = 0;
+    carouselTouchEndX = 0;
+    carouselTouchEndY = 0;
 }
 
 // 初始化
