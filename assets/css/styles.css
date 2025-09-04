@@ -50,6 +50,36 @@
     }
 }
 
+@keyframes showTouchHint {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+}
+
+@keyframes swipeIndicator {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) scale(1);
+    }
+}
+
 body {
     font-family: 'Microsoft YaHei', Arial, sans-serif;
     background: linear-gradient(-45deg, #eaeded, #e5e9e9, #e0e4e4, #eaeded);
@@ -962,18 +992,105 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     
     .search-container {
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
         width: 100%;
+        align-items: center;
     }
     
-    .search-input {
+    .search-container .search-input {
         width: 100%;
-        max-width: 280px;
+        max-width: 300px;
+        order: 1;
     }
     
-    .date-search-input {
+    /* 将日期搜索框和清除按钮包装在一个flex容器中 */
+    .search-container .date-search-input {
+        width: 65%;
+        min-width: 120px;
+        order: 2;
+    }
+    
+    .search-container .clear-search-btn {
+        width: 30%;
+        min-width: 60px;
+        max-width: 80px;
+        order: 3;
+        padding: 10px 8px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+    
+    /* 使用CSS Grid在移动端重新排列元素 */
+    .search-container {
+        flex-direction: column;
+        gap: 10px;
         width: 100%;
-        max-width: 150px;
+        align-items: center;
+    }
+    
+    .search-container .search-input {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    /* 创建一个flex容器来包含日期搜索框和清除按钮 */
+    .search-container {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        align-items: center;
+    }
+    
+    .search-container .search-input {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    /* 移动端：为日期搜索框和清除按钮创建一个flex行 */
+    .search-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        align-items: center;
+    }
+    
+    /* 使用CSS Grid来重新布局移动端搜索容器 */
+    .search-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* 第一行：文本搜索框占满宽度 */
+    .search-container .search-input {
+        width: 100%;
+        max-width: 300px;
+        order: 1;
+        flex-basis: 100%;
+    }
+    
+    /* 第二行：日期搜索框和清除按钮并排 */
+    .search-container .date-search-input {
+        width: auto;
+        min-width: 180px;
+        max-width: 200px;
+        flex: 1;
+        order: 2;
+    }
+    
+    .search-container .clear-search-btn {
+        width: auto;
+        min-width: 60px;
+        max-width: 80px;
+        padding: 10px 12px;
+        font-size: 14px;
+        order: 3;
+        flex: 0 0 auto;
     }
     
     .control-buttons {
@@ -1640,10 +1757,60 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     .modal-image-container {
         max-width: 98%;
         max-height: 90%;
+        /* 改善触摸体验 */
+        touch-action: pan-x; /* 只允许水平滑动 */
+        user-select: none; /* 防止选中 */
     }
     
     .modal-image-container img {
         border-radius: 4px;
+        /* 防止图片拖拽 */
+        pointer-events: none;
+    }
+    
+    /* 移动端导航按钮优化 */
+    .modal-nav {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        /* 增加触摸区域 */
+        padding: 10px;
+        /* 改善触摸反馈 */
+        transition: all 0.2s ease;
+    }
+    
+    .modal-prev {
+        left: -55px;
+    }
+    
+    .modal-next {
+        right: -55px;
+    }
+    
+    .modal-close {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+        top: -50px;
+        right: -50px;
+    }
+    
+    /* 移动端触摸提示 */
+    .modal-image-container::before {
+        content: '← 滑动切换 →';
+        position: absolute;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        animation: showTouchHint 0.5s ease 1s forwards;
+        z-index: 20;
     }
     
     .modal-progress-container {
