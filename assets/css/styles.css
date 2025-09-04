@@ -1369,29 +1369,49 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     transform: scale(1.1);
 }
 
-.modal-play-pause {
+.modal-progress-container {
     position: absolute;
-    bottom: -60px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    top: 20px;
+    left: 20px;
+    right: 20px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 4px;
+    z-index: 10;
 }
 
-.modal-play-pause:hover {
+.modal-progress-bar {
+    flex: 1;
+    height: 3px;
     background: rgba(255, 255, 255, 0.3);
-    transform: translateX(-50%) scale(1.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.modal-progress-bar.active {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.modal-progress-bar.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1));
+    animation: progressFill 3s linear forwards;
+}
+
+@keyframes progressFill {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
 }
 
 .modal-counter {
