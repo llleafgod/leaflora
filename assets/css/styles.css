@@ -1320,6 +1320,12 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     width: 100%;
     height: 400px;
     overflow: hidden;
+    /* 触摸优化 */
+    touch-action: pan-y; /* 只允许垂直滚动，水平手势用于切换 */
+    user-select: none; /* 防止文本选择 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .carousel-slides {
@@ -1687,12 +1693,23 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
 @media (max-width: 768px) {
     .carousel-container {
         height: 300px;
+        /* 移动端触摸优化 */
+        touch-action: pan-y;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .carousel-btn {
         width: 35px;
         height: 35px;
         font-size: 16px;
+        /* 在移动端保持按钮可见，但降低透明度，因为现在支持滑动 */
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+    
+    .carousel-btn:active {
+        opacity: 1;
     }
     
     .carousel-prev {
@@ -1763,23 +1780,6 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
         font-size: 18px;
         top: -50px;
         right: -50px;
-    }
-    
-    /* 移动端触摸提示 */
-    .modal-image-container::before {
-        content: '← 滑动切换 →';
-        position: absolute;
-        bottom: -100px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 12px;
-        padding: 4px 8px;
-        border-radius: 12px;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
-        opacity: 0.6;
-        z-index: 20;
     }
     
     .modal-progress-container {
