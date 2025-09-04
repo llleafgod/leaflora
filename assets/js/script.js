@@ -607,6 +607,11 @@ function openImageModal(memoryId, index) {
     // 添加键盘事件监听
     document.addEventListener('keydown', handleModalKeydown);
     
+    // 添加触摸滑动支持
+    if (imageUrls.length > 1) {
+        setupImageModalTouchEvents(modal);
+    }
+    
     // 防止背景滚动
     document.body.style.overflow = 'hidden';
     
@@ -625,6 +630,9 @@ function openImageModal(memoryId, index) {
 function closeImageModal() {
     // 停止自动播放
     stopAutoPlay();
+    
+    // 清理触摸事件
+    cleanupImageModalTouchEvents();
     
     if (currentImageModal) {
         currentImageModal.classList.remove('show');
@@ -1714,6 +1722,180 @@ function showNotification(message, type = 'success') {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// 触摸滑动相关变量
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isImageModalTouchEnabled = false;
+let touchStartTime = 0;
+let isTouching = false;
+
+// 设置图片模态框触摸事件
+function setupImageModalTouchEvents(modal) {
+    const imageContainer = modal.querySelector('.modal-image-container');
+    if (!imageContainer) return;
+    
+    isImageModalTouchEnabled = true;
+    
+    // 触摸开始
+    imageContainer.addEventListener('touchstart', handleImageModalTouchStart, { passive: false });
+    
+    // 触摸移动
+    imageContainer.addEventListener('touchmove', handleImageModalTouchMove, { passive: false });
+    
+    // 触摸结束
+    imageContainer.addEventListener('touchend', handleImageModalTouchEnd, { passive: false });
+    
+    // 触摸取消（当触摸被中断时）
+    imageContainer.addEventListener('touchcancel', handleImageModalTouchCancel, { passive: false });
+    
+    console.log('Image modal touch events set up');
+}
+
+// 处理触摸开始
+function handleImageModalTouchStart(e) {
+    if (!isImageModalTouchEnabled || e.touches.length > 1) return;
+    
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartTime = Date.now();
+    isTouching = true;
+    
+    // 停止自动播放
+    stopAutoPlay();
+    
+    console.log('Touch start:', touchStartX, touchStartY);
+}
+
+// 处理触摸移动
+function handleImageModalTouchMove(e) {
+    if (!isImageModalTouchEnabled || !isTouching) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    
+    // 如果主要是水平移动，阻止默认行为
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        e.preventDefault();
+    }
+}
+
+// 处理触摸结束
+function handleImageModalTouchEnd(e) {
+    if (!isImageModalTouchEnabled || !isTouching) return;
+    
+    const touch = e.changedTouches[0];
+    touchEndX = touch.clientX;
+    touchEndY = touch.clientY;
+    const touchEndTime = Date.now();
+    
+    isTouching = false;
+    
+    // 检查是否是有效的滑动手势
+    const touchDuration = touchEndTime - touchStartTime;
+    if (touchDuration < 1000) { // 滑动时间小于1秒
+        handleImageModalSwipe();
+    }
+    
+    console.log('Touch end:', touchEndX, touchEndY, 'Duration:', touchDuration);
+}
+
+// 处理触摸取消
+function handleImageModalTouchCancel(e) {
+    if (!isImageModalTouchEnabled) return;
+    
+    isTouching = false;
+    console.log('Touch cancelled');
+}
+
+// 处理滑动手势
+function handleImageModalSwipe() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // 计算滑动距离和方向
+    const minSwipeDistance = 80; // 增加最小滑动距离
+    const maxVerticalDistance = 120; // 增加最大垂直距离容忍度
+    
+    console.log('Swipe detection:', 'deltaX:', deltaX, 'deltaY:', deltaY);
+    
+    // 确保是水平滑动且滑动距离足够
+    if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < maxVerticalDistance) {
+        // 确保水平距离明显大于垂直距离
+        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+            if (deltaX > 0) {
+                // 向右滑动 - 上一张
+                console.log('Swipe right detected - previous image');
+                prevModalImage();
+                showSwipeDirection('right');
+            } else {
+                // 向左滑动 - 下一张
+                console.log('Swipe left detected - next image');
+                nextModalImage();
+                showSwipeDirection('left');
+            }
+        }
+    }
+    
+    // 重置触摸坐标
+    touchStartX = 0;
+    touchStartY = 0;
+    touchEndX = 0;
+    touchEndY = 0;
+}
+
+// 显示滑动方向反馈
+function showSwipeDirection(direction) {
+    const modal = currentImageModal;
+    if (!modal) return;
+    
+    const indicator = document.createElement('div');
+    indicator.className = 'swipe-indicator';
+    indicator.textContent = direction === 'left' ? '→' : '←';
+    indicator.style.cssText = `
+        position: absolute;
+        top: 50%;
+        ${direction === 'left' ? 'right: 20px' : 'left: 20px'};
+        transform: translateY(-50%);
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        animation: swipeIndicator 0.6s ease forwards;
+        z-index: 1001;
+    `;
+    
+    modal.appendChild(indicator);
+    
+    // 1秒后移除指示器
+    setTimeout(() => {
+        if (indicator.parentNode) {
+            indicator.parentNode.removeChild(indicator);
+        }
+    }, 600);
+}
+
+// 清理触摸事件
+function cleanupImageModalTouchEvents() {
+    isImageModalTouchEnabled = false;
+    isTouching = false;
+    touchStartX = 0;
+    touchStartY = 0;
+    touchEndX = 0;
+    touchEndY = 0;
+    touchStartTime = 0;
 }
 
 // 初始化
