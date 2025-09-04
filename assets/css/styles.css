@@ -1371,7 +1371,7 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
 
 .modal-progress-container {
     position: absolute;
-    top: 20px;
+    bottom: 20px;
     left: 20px;
     right: 20px;
     display: flex;
@@ -1381,17 +1381,16 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
 
 .modal-progress-bar {
     flex: 1;
-    height: 3px;
+    height: 4px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     overflow: hidden;
     position: relative;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease;
 }
 
 .modal-progress-bar.active {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .modal-progress-bar.active::after {
@@ -1401,22 +1400,41 @@ input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
     left: 0;
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1));
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
     animation: progressFill 3s linear forwards;
+}
+
+.modal-progress-bar.completed {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.modal-progress-bar.completed::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 2px;
 }
 
 @keyframes progressFill {
     from {
         width: 0;
+        box-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
     }
     to {
         width: 100%;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     }
 }
 
 .modal-counter {
     position: absolute;
-    bottom: -40px;
+    bottom: -70px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.7);
