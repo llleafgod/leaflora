@@ -7,6 +7,12 @@ let currentUploadType = 'photo';
 let currentFiles = [];
 let authToken = null;
 
+// 编辑相关的变量
+let editMemoryData = null;
+let editCurrentFiles = [];
+let editCurrentUploadType = 'photo';
+let editDeletedMediaUrls = [];
+
 // 页面加载时初始化
 window.addEventListener('load', function() {
     checkAuth();
@@ -242,9 +248,15 @@ function updateTimeline() {
         
         let mediaContent = '';
         if (memory.type === 'photo' && memory.media_urls && memory.media_urls.length > 0) {
-            mediaContent = memory.media_urls.map(url => 
-                `<img src="${url}" alt="${memory.title || '照片'}" loading="lazy">`
-            ).join('');
+            if (memory.media_urls.length === 1) {
+                // 单张图片直接显示
+                mediaContent = `<div class="single-image">
+                    <img src="${memory.media_urls[0]}" alt="${memory.title || '照片'}" loading="lazy" onclick="openImageModal('${memory.media_urls[0]}', 0, ${JSON.stringify(memory.media_urls).replace(/"/g, '&quot;')})">
+                </div>`;
+            } else {
+                // 多张图片使用轮播
+                mediaContent = createImageCarousel(memory.media_urls, memory.id, memory.title || '照片');
+            }
         } else if (memory.type === 'video' && memory.media_urls && memory.media_urls.length > 0) {
             mediaContent = memory.media_urls.map(url => `
                 <video controls preload="metadata">
@@ -274,6 +286,207 @@ function updateTimeline() {
     });
 }
 
+// 创建图片轮播组件
+function createImageCarousel(imageUrls, memoryId, alt) {
+    const carouselId = `carousel-${memoryId}`;
+    const imagesHtml = imageUrls.map((url, index) => `
+        <div class="carousel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+            <img src="${url}" alt="${alt}" loading="lazy" onclick="openImageModal('${url}', ${index}, ${JSON.stringify(imageUrls).replace(/"/g, '&quot;')})">
+        </div>
+    `).join('');
+    
+    const dotsHtml = imageUrls.length > 1 ? imageUrls.map((_, index) => `
+        <span class="carousel-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide('${carouselId}', ${index})" data-index="${index}"></span>
+    `).join('') : '';
+    
+    return `
+        <div class="image-carousel" id="${carouselId}">
+            <div class="carousel-container">
+                <div class="carousel-slides">
+                    ${imagesHtml}
+                </div>
+                ${imageUrls.length > 1 ? `
+                    <button class="carousel-btn carousel-prev" onclick="prevSlide('${carouselId}')" aria-label="上一张">‹</button>
+                    <button class="carousel-btn carousel-next" onclick="nextSlide('${carouselId}')" aria-label="下一张">›</button>
+                ` : ''}
+            </div>
+            ${imageUrls.length > 1 ? `
+                <div class="carousel-counter">${1} / ${imageUrls.length}</div>
+                <div class="carousel-dots">
+                    ${dotsHtml}
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+// 轮播控制函数
+function nextSlide(carouselId) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const counter = carousel.querySelector('.carousel-counter');
+    
+    let currentIndex = 0;
+    slides.forEach((slide, index) => {
+        if (slide.classList.contains('active')) {
+            currentIndex = index;
+        }
+    });
+    
+    const nextIndex = (currentIndex + 1) % slides.length;
+    updateCarousel(slides, dots, counter, nextIndex);
+}
+
+function prevSlide(carouselId) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const counter = carousel.querySelector('.carousel-counter');
+    
+    let currentIndex = 0;
+    slides.forEach((slide, index) => {
+        if (slide.classList.contains('active')) {
+            currentIndex = index;
+        }
+    });
+    
+    const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
+    updateCarousel(slides, dots, counter, prevIndex);
+}
+
+function goToSlide(carouselId, index) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const counter = carousel.querySelector('.carousel-counter');
+    
+    updateCarousel(slides, dots, counter, index);
+}
+
+function updateCarousel(slides, dots, counter, index) {
+    // 更新幻灯片
+    slides.forEach(slide => slide.classList.remove('active'));
+    slides[index].classList.add('active');
+    
+    // 更新指示器
+    if (dots.length > 0) {
+        dots.forEach(dot => dot.classList.remove('active'));
+        dots[index].classList.add('active');
+    }
+    
+    // 更新计数器
+    if (counter) {
+        counter.textContent = `${index + 1} / ${slides.length}`;
+    }
+}
+
+// 图片模态框相关函数
+let currentImageModal = null;
+let currentImageIndex = 0;
+let currentImageUrls = [];
+
+function openImageModal(imageUrl, index, imageUrls) {
+    currentImageIndex = index;
+    currentImageUrls = JSON.parse(imageUrls.replace(/&quot;/g, '"'));
+    
+    // 创建模态框
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.id = 'imageModal';
+    
+    const modalHtml = `
+        <div class="modal-backdrop" onclick="closeImageModal()"></div>
+        <div class="modal-image-container">
+            <img src="${imageUrl}" alt="查看大图" id="modalImage">
+            ${currentImageUrls.length > 1 ? `
+                <button class="modal-nav modal-prev" onclick="prevModalImage()" aria-label="上一张">‹</button>
+                <button class="modal-nav modal-next" onclick="nextModalImage()" aria-label="下一张">›</button>
+                <div class="modal-counter">${index + 1} / ${currentImageUrls.length}</div>
+            ` : ''}
+            <button class="modal-close" onclick="closeImageModal()" aria-label="关闭">×</button>
+        </div>
+    `;
+    
+    modal.innerHTML = modalHtml;
+    document.body.appendChild(modal);
+    currentImageModal = modal;
+    
+    // 添加键盘事件监听
+    document.addEventListener('keydown', handleModalKeydown);
+    
+    // 防止背景滚动
+    document.body.style.overflow = 'hidden';
+    
+    // 添加显示动画
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+function closeImageModal() {
+    if (currentImageModal) {
+        currentImageModal.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(currentImageModal);
+            currentImageModal = null;
+        }, 300);
+        
+        // 移除键盘事件监听
+        document.removeEventListener('keydown', handleModalKeydown);
+        
+        // 恢复背景滚动
+        document.body.style.overflow = '';
+    }
+}
+
+function nextModalImage() {
+    currentImageIndex = (currentImageIndex + 1) % currentImageUrls.length;
+    updateModalImage();
+}
+
+function prevModalImage() {
+    currentImageIndex = (currentImageIndex - 1 + currentImageUrls.length) % currentImageUrls.length;
+    updateModalImage();
+}
+
+function updateModalImage() {
+    const modalImage = document.getElementById('modalImage');
+    const modalCounter = document.querySelector('.modal-counter');
+    
+    if (modalImage) {
+        modalImage.src = currentImageUrls[currentImageIndex];
+    }
+    
+    if (modalCounter) {
+        modalCounter.textContent = `${currentImageIndex + 1} / ${currentImageUrls.length}`;
+    }
+}
+
+function handleModalKeydown(event) {
+    switch (event.key) {
+        case 'Escape':
+            closeImageModal();
+            break;
+        case 'ArrowLeft':
+            if (currentImageUrls.length > 1) {
+                prevModalImage();
+            }
+            break;
+        case 'ArrowRight':
+            if (currentImageUrls.length > 1) {
+                nextModalImage();
+            }
+            break;
+    }
+}
+
 // 切换上传类型
 function switchUploadType(type) {
     document.querySelectorAll('.upload-type-btn').forEach(btn => {
@@ -281,12 +494,18 @@ function switchUploadType(type) {
     });
     document.querySelector(`[onclick="switchUploadType('${type}')"]`).classList.add('active');
     
+    // 显示/隐藏相应的上传区域
     document.getElementById('photoUpload').classList.toggle('hidden', type !== 'photo');
     document.getElementById('videoUpload').classList.toggle('hidden', type !== 'video');
+    document.getElementById('textUpload').classList.toggle('hidden', type !== 'text');
     
     currentUploadType = type;
-    currentFiles = []; // 清空当前文件
-    clearPreviews();
+    
+    // 如果切换到非文件类型，清空文件选择
+    if (type === 'text') {
+        currentFiles = [];
+        clearPreviews();
+    }
 }
 
 // 设置文件输入事件
@@ -294,23 +513,27 @@ function setupFileInputs() {
     // 针对照片输入
     const photoInput = document.getElementById('photoInput');
     photoInput.addEventListener('change', function(e) {
-        handleFileSelection(e.target.files, 'photo');
-        
-        // 针对移动设备优化：重置input允许再次选择相同文件
-        if (/Mobi|Android/i.test(navigator.userAgent)) {
-            this.value = ''; // 在处理完文件后清空input值，允许再次选择相同文件
+        if (e.target.files && e.target.files.length > 0) {
+            handleFileSelection(e.target.files, 'photo');
         }
+        
+        // 延迟重置input值，确保文件处理完成后再清空
+        setTimeout(() => {
+            this.value = '';
+        }, 100);
     });
     
     // 针对视频输入
     const videoInput = document.getElementById('videoInput');
     videoInput.addEventListener('change', function(e) {
-        handleFileSelection(e.target.files, 'video');
-        
-        // 针对移动设备优化：重置input允许再次选择相同文件
-        if (/Mobi|Android/i.test(navigator.userAgent)) {
-            this.value = ''; // 在处理完文件后清空input值，允许再次选择相同文件
+        if (e.target.files && e.target.files.length > 0) {
+            handleFileSelection(e.target.files, 'video');
         }
+        
+        // 延迟重置input值，确保文件处理完成后再清空
+        setTimeout(() => {
+            this.value = '';
+        }, 100);
     });
 }
 
@@ -336,7 +559,12 @@ function setupDragAndDrop() {
             
             const files = e.dataTransfer.files;
             const type = this.id === 'photoUpload' ? 'photo' : 'video';
-            handleFileSelection(files, type);
+            
+            // 支持多文件拖拽上传
+            if (files.length > 0) {
+                showNotification(`检测到 ${files.length} 个文件，正在处理...`);
+                handleFileSelection(files, type);
+            }
         });
     });
 }
@@ -351,22 +579,44 @@ function handleFileSelection(files, type) {
         video: ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov', 'video/quicktime']
     };
     
+    const validFiles = [];
     for (let file of files) {
         if (!allowedTypes[type].includes(file.type)) {
             showNotification(`文件类型不支持：${file.name}`, 'error');
-            return;
+            continue;
         }
         
         const maxSize = type === 'video' ? 100 * 1024 * 1024 : 50 * 1024 * 1024;
         if (file.size > maxSize) {
             showNotification(`文件过大：${file.name}，最大支持${type === 'video' ? '100MB' : '50MB'}`, 'error');
-            return;
+            continue;
         }
+        
+        validFiles.push(file);
     }
     
-    currentFiles = Array.from(files);
-    showPreview(files, type);
-    showNotification(`已选择 ${files.length} 个文件`);
+    if (validFiles.length === 0) return;
+    
+    // 对于移动端，支持多次选择累积文件
+    if (currentUploadType === type) {
+        // 检查重复文件
+        const existingFileNames = currentFiles.map(f => f.name);
+        const newFiles = validFiles.filter(f => !existingFileNames.includes(f.name));
+        
+        if (newFiles.length === 0) {
+            showNotification('所选文件已存在', 'warning');
+            return;
+        }
+        
+        currentFiles = [...currentFiles, ...newFiles];
+        showNotification(`已累积选择 ${currentFiles.length} 个文件（新增 ${newFiles.length} 个）`);
+    } else {
+        // 切换类型时重置文件列表
+        currentFiles = Array.from(validFiles);
+        showNotification(`已选择 ${validFiles.length} 个文件`);
+    }
+    
+    showPreview(currentFiles, type);
 }
 
 // 显示预览
@@ -374,7 +624,24 @@ function showPreview(files, type) {
     const previewContainer = document.getElementById(`${type}Preview`);
     previewContainer.innerHTML = '';
     
-    Array.from(files).forEach(file => {
+    // 显示清空按钮
+    const clearBtn = document.getElementById(`${type}ClearBtn`);
+    if (clearBtn) {
+        clearBtn.style.display = files.length > 0 ? 'inline-block' : 'none';
+    }
+    
+    if (files.length === 0) return;
+    
+    // 添加文件计数器
+    const counterDiv = document.createElement('div');
+    counterDiv.className = 'files-counter';
+    counterDiv.textContent = `已选择 ${files.length} 个文件`;
+    previewContainer.appendChild(counterDiv);
+    
+    const previewGrid = document.createElement('div');
+    previewGrid.className = 'preview-grid';
+    
+    Array.from(files).forEach((file, index) => {
         const previewItem = document.createElement('div');
         previewItem.className = 'preview-item';
         
@@ -382,26 +649,56 @@ function showPreview(files, type) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewItem.innerHTML = `
-                    <img src="${e.target.result}" alt="预览">
+                    <div class="preview-image-container">
+                        <img src="${e.target.result}" alt="预览">
+                        <button class="remove-file-btn" onclick="removeFile(${index}, '${type}')" title="移除此文件">×</button>
+                    </div>
                     <span class="file-name">${file.name}</span>
                 `;
             };
             reader.readAsDataURL(file);
         } else {
             previewItem.innerHTML = `
-                <div class="video-icon">🎬</div>
+                <div class="preview-video-container">
+                    <div class="video-icon">🎬</div>
+                    <button class="remove-file-btn" onclick="removeFile(${index}, '${type}')" title="移除此文件">×</button>
+                </div>
                 <span class="file-name">${file.name}</span>
             `;
         }
         
-        previewContainer.appendChild(previewItem);
+        previewGrid.appendChild(previewItem);
     });
+    
+    previewContainer.appendChild(previewGrid);
+}
+
+// 清空当前文件选择
+function clearCurrentFiles(type) {
+    currentFiles = [];
+    showPreview(currentFiles, type);
+    showNotification('已清空文件选择');
+}
+
+// 移除单个文件
+function removeFile(index, type) {
+    if (index >= 0 && index < currentFiles.length) {
+        const removedFile = currentFiles.splice(index, 1)[0];
+        showPreview(currentFiles, type);
+        showNotification(`已移除文件: ${removedFile.name}`);
+    }
 }
 
 // 清空预览
 function clearPreviews() {
     document.getElementById('photoPreview').innerHTML = '';
     document.getElementById('videoPreview').innerHTML = '';
+    
+    // 隐藏清空按钮
+    const photoClearBtn = document.getElementById('photoClearBtn');
+    const videoClearBtn = document.getElementById('videoClearBtn');
+    if (photoClearBtn) photoClearBtn.style.display = 'none';
+    if (videoClearBtn) videoClearBtn.style.display = 'none';
 }
 
 // 上传文件到服务器
@@ -549,6 +846,11 @@ function editMemory(memoryId) {
         return;
     }
     
+    // 存储当前编辑的回忆数据
+    editMemoryData = { ...memory };
+    editCurrentFiles = [];
+    editDeletedMediaUrls = [];
+    
     // 填充表单
     document.getElementById('editMemoryTitle').value = memory.title || '';
     document.getElementById('editMemoryContent').value = memory.content || '';
@@ -558,8 +860,22 @@ function editMemory(memoryId) {
     const formattedDate = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
     document.getElementById('editMemoryDate').value = formattedDate;
     
-    // 存储回忆ID以便更新
+    // 存储回忆ID和类型
     document.getElementById('editMemoryId').value = memoryId;
+    document.getElementById('editMemoryType').value = memory.type || 'text';
+    
+    // 显示当前媒体文件
+    displayCurrentMedia(memory);
+    
+    // 设置初始上传类型
+    if (memory.type === 'video') {
+        switchEditUploadType('video');
+    } else {
+        switchEditUploadType('photo');
+    }
+    
+    // 设置编辑文件输入事件
+    setupEditFileInputs();
     
     // 显示模态框
     document.getElementById('editMemoryModal').style.display = 'flex';
@@ -568,6 +884,211 @@ function editMemory(memoryId) {
 // 关闭编辑模态框
 function closeEditModal() {
     document.getElementById('editMemoryModal').style.display = 'none';
+    
+    // 清理编辑状态
+    editMemoryData = null;
+    editCurrentFiles = [];
+    editDeletedMediaUrls = [];
+    clearEditPreviews();
+}
+
+// 显示当前媒体文件
+function displayCurrentMedia(memory) {
+    const currentMediaDisplay = document.getElementById('currentMediaDisplay');
+    
+    if (!memory.media_urls || memory.media_urls.length === 0) {
+        currentMediaDisplay.innerHTML = '<p class="no-media-text">暂无媒体文件</p>';
+        return;
+    }
+    
+    let mediaHtml = '<div class="current-media-grid">';
+    
+    memory.media_urls.forEach((url, index) => {
+        if (memory.type === 'photo') {
+            mediaHtml += `
+                <div class="current-media-item" data-url="${url}">
+                    <img src="${url}" alt="当前图片" onclick="openImageModal('${url}', ${index}, ${JSON.stringify(memory.media_urls).replace(/"/g, '&quot;')})">
+                    <button class="remove-current-media" onclick="removeCurrentMedia('${url}')" title="删除此文件">×</button>
+                </div>
+            `;
+        } else if (memory.type === 'video') {
+            mediaHtml += `
+                <div class="current-media-item" data-url="${url}">
+                    <video controls preload="metadata">
+                        <source src="${url}" type="video/mp4">
+                    </video>
+                    <button class="remove-current-media" onclick="removeCurrentMedia('${url}')" title="删除此文件">×</button>
+                </div>
+            `;
+        }
+    });
+    
+    mediaHtml += '</div>';
+    currentMediaDisplay.innerHTML = mediaHtml;
+}
+
+// 删除当前媒体文件
+function removeCurrentMedia(url) {
+    if (!confirm('确定要删除这个文件吗？')) {
+        return;
+    }
+    
+    // 添加到删除列表
+    editDeletedMediaUrls.push(url);
+    
+    // 从当前数据中移除
+    if (editMemoryData.media_urls) {
+        editMemoryData.media_urls = editMemoryData.media_urls.filter(mediaUrl => mediaUrl !== url);
+    }
+    
+    // 重新显示当前媒体
+    displayCurrentMedia(editMemoryData);
+    showNotification('文件已标记为删除');
+}
+
+// 切换编辑上传类型
+function switchEditUploadType(type) {
+    document.querySelectorAll('.media-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    if (type === 'photo') {
+        document.getElementById('editPhotoBtn').classList.add('active');
+        document.getElementById('editPhotoUpload').classList.remove('hidden');
+        document.getElementById('editVideoUpload').classList.add('hidden');
+    } else {
+        document.getElementById('editVideoBtn').classList.add('active');
+        document.getElementById('editVideoUpload').classList.remove('hidden');
+        document.getElementById('editPhotoUpload').classList.add('hidden');
+    }
+    
+    editCurrentUploadType = type;
+}
+
+// 设置编辑文件输入事件
+function setupEditFileInputs() {
+    // 照片输入
+    const editPhotoInput = document.getElementById('editPhotoInput');
+    editPhotoInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files.length > 0) {
+            handleEditFileSelection(e.target.files, 'photo');
+        }
+        
+        setTimeout(() => {
+            this.value = '';
+        }, 100);
+    });
+    
+    // 视频输入
+    const editVideoInput = document.getElementById('editVideoInput');
+    editVideoInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files.length > 0) {
+            handleEditFileSelection(e.target.files, 'video');
+        }
+        
+        setTimeout(() => {
+            this.value = '';
+        }, 100);
+    });
+}
+
+// 处理编辑文件选择
+function handleEditFileSelection(files, type) {
+    if (!files || files.length === 0) return;
+    
+    // 验证文件类型
+    const allowedTypes = {
+        photo: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        video: ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov', 'video/quicktime']
+    };
+    
+    const validFiles = [];
+    for (let file of files) {
+        if (!allowedTypes[type].includes(file.type)) {
+            showNotification(`文件类型不支持：${file.name}`, 'error');
+            continue;
+        }
+        
+        const maxSize = type === 'video' ? 100 * 1024 * 1024 : 50 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showNotification(`文件过大：${file.name}，最大支持${type === 'video' ? '100MB' : '50MB'}`, 'error');
+            continue;
+        }
+        
+        validFiles.push(file);
+    }
+    
+    if (validFiles.length === 0) return;
+    
+    // 检查重复文件
+    const existingFileNames = editCurrentFiles.map(f => f.name);
+    const newFiles = validFiles.filter(f => !existingFileNames.includes(f.name));
+    
+    if (newFiles.length === 0) {
+        showNotification('所选文件已存在', 'warning');
+        return;
+    }
+    
+    editCurrentFiles = [...editCurrentFiles, ...newFiles];
+    showEditPreview(editCurrentFiles, type);
+    showNotification(`已选择 ${newFiles.length} 个新文件`);
+}
+
+// 显示编辑预览
+function showEditPreview(files, type) {
+    const previewContainer = document.getElementById(`edit${type.charAt(0).toUpperCase() + type.slice(1)}Preview`);
+    previewContainer.innerHTML = '';
+    
+    if (files.length === 0) return;
+    
+    const previewGrid = document.createElement('div');
+    previewGrid.className = 'edit-preview-grid';
+    
+    files.forEach((file, index) => {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'edit-preview-item';
+        
+        if (type === 'photo') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewItem.innerHTML = `
+                    <div class="edit-preview-image-container">
+                        <img src="${e.target.result}" alt="预览">
+                        <button class="remove-edit-file-btn" onclick="removeEditFile(${index}, '${type}')" title="移除此文件">×</button>
+                    </div>
+                    <span class="edit-file-name">${file.name}</span>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewItem.innerHTML = `
+                <div class="edit-preview-video-container">
+                    <div class="video-icon">🎬</div>
+                    <button class="remove-edit-file-btn" onclick="removeEditFile(${index}, '${type}')" title="移除此文件">×</button>
+                </div>
+                <span class="edit-file-name">${file.name}</span>
+            `;
+        }
+        
+        previewGrid.appendChild(previewItem);
+    });
+    
+    previewContainer.appendChild(previewGrid);
+}
+
+// 移除编辑文件
+function removeEditFile(index, type) {
+    if (index >= 0 && index < editCurrentFiles.length) {
+        const removedFile = editCurrentFiles.splice(index, 1)[0];
+        showEditPreview(editCurrentFiles, type);
+        showNotification(`已移除文件: ${removedFile.name}`);
+    }
+}
+
+// 清空编辑预览
+function clearEditPreviews() {
+    document.getElementById('editPhotoPreview').innerHTML = '';
+    document.getElementById('editVideoPreview').innerHTML = '';
 }
 
 // 更新回忆
@@ -588,15 +1109,49 @@ async function updateMemory() {
     updateBtn.textContent = '保存中...';
     
     try {
+        let newMediaUrls = [];
+        let finalMediaUrls = [];
+        
+        // 如果有新文件要上传
+        if (editCurrentFiles.length > 0) {
+            showNotification('正在上传新文件...');
+            newMediaUrls = await uploadFiles(editCurrentFiles, editCurrentUploadType);
+        }
+        
+        // 合并现有媒体URL和新上传的URL
+        if (editMemoryData.media_urls) {
+            // 过滤掉被删除的URL
+            const keepUrls = editMemoryData.media_urls.filter(url => !editDeletedMediaUrls.includes(url));
+            finalMediaUrls = [...keepUrls, ...newMediaUrls];
+        } else {
+            finalMediaUrls = newMediaUrls;
+        }
+        
+        // 删除被标记删除的文件
+        if (editDeletedMediaUrls.length > 0) {
+            showNotification('正在删除旧文件...');
+            await deleteMediaFiles(editDeletedMediaUrls);
+        }
+        
         // 创建日期对象并转换为ISO格式
         const eventDateObj = new Date(eventDate);
         const formattedEventDate = eventDateObj.toISOString();
+        
+        // 确定最终的类型
+        let finalType = editMemoryData.type || 'text';
+        if (finalMediaUrls.length > 0) {
+            finalType = editCurrentUploadType;
+        } else if (finalMediaUrls.length === 0 && editDeletedMediaUrls.length > 0) {
+            finalType = 'text'; // 如果删除了所有媒体文件，改为文本类型
+        }
         
         // 保存回忆数据
         const memoryData = {
             title: title || null,
             content,
-            event_date: formattedEventDate
+            event_date: formattedEventDate,
+            type: finalType,
+            media_urls: finalMediaUrls.length > 0 ? finalMediaUrls : null
         };
         
         const response = await fetch(`${API_BASE_URL}/memories/${memoryId}`, {
@@ -629,6 +1184,56 @@ async function updateMemory() {
     } finally {
         updateBtn.disabled = false;
         updateBtn.textContent = '保存修改';
+    }
+}
+
+// 删除媒体文件
+async function deleteMediaFiles(mediaUrls) {
+    for (const url of mediaUrls) {
+        try {
+            // 从URL中提取完整的文件路径
+            // Supabase URL格式：https://your-project.supabase.co/storage/v1/object/public/bucket/path/to/file.ext
+            // 我们需要提取 path/to/file.ext 部分
+            let filename = '';
+            
+            if (url.includes('/storage/v1/object/public/memories/')) {
+                // 从Supabase public URL中提取文件路径
+                const parts = url.split('/storage/v1/object/public/memories/');
+                if (parts.length > 1) {
+                    filename = parts[1];
+                }
+            } else {
+                // 备用方法：使用URL的最后两个部分（folder/filename.ext）
+                const urlParts = url.split('/');
+                if (urlParts.length >= 2) {
+                    filename = urlParts.slice(-2).join('/');
+                } else {
+                    filename = urlParts[urlParts.length - 1];
+                }
+            }
+            
+            if (!filename) {
+                console.error('Could not extract filename from URL:', url);
+                continue;
+            }
+            
+            const response = await fetch(`${API_BASE_URL}/upload`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filename })
+            });
+            
+            if (!response.ok) {
+                console.error(`Failed to delete file: ${filename}`, response.status, response.statusText);
+            } else {
+                console.log(`Successfully deleted file: ${filename}`);
+            }
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
     }
 }
 
