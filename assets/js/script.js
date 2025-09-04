@@ -436,7 +436,11 @@ function openImageModal(memoryId, index) {
                 <button class="modal-nav modal-prev" onclick="prevModalImage()" aria-label="上一张">‹</button>
                 <button class="modal-nav modal-next" onclick="nextModalImage()" aria-label="下一张">›</button>
                 <div class="modal-counter">${index + 1} / ${imageUrls.length}</div>
-                <button class="modal-play-pause" onclick="toggleAutoPlay()" id="playPauseBtn" title="播放/暂停 (空格键)">⏸️</button>
+                <div class="modal-progress-container">
+                    ${imageUrls.map((_, i) => `
+                        <div class="modal-progress-bar ${i === index ? 'active' : ''}"></div>
+                    `).join('')}
+                </div>
             ` : ''}
             <button class="modal-close" onclick="closeImageModal()" aria-label="关闭">×</button>
         </div>
@@ -514,6 +518,20 @@ function updateModalImage() {
     if (modalCounter) {
         modalCounter.textContent = `${currentImageIndex + 1} / ${currentImageUrls.length}`;
     }
+    
+    // 更新Instagram风格的进度条
+    const progressBars = document.querySelectorAll('.modal-progress-bar');
+    progressBars.forEach((bar, index) => {
+        // 移除所有active类，重置动画
+        bar.classList.remove('active');
+        
+        if (index === currentImageIndex) {
+            // 使用requestAnimationFrame确保动画重新开始
+            requestAnimationFrame(() => {
+                bar.classList.add('active');
+            });
+        }
+    });
 }
 
 function handleModalKeydown(event) {
@@ -530,10 +548,6 @@ function handleModalKeydown(event) {
             if (currentImageUrls.length > 1) {
                 nextModalImage();
             }
-            break;
-        case ' ': // 空格键暂停/播放
-            event.preventDefault();
-            toggleAutoPlay();
             break;
     }
 }
@@ -558,21 +572,6 @@ function stopAutoPlay() {
     }
     isAutoPlaying = false;
     console.log('Auto play stopped');
-}
-
-function toggleAutoPlay() {
-    if (isAutoPlaying) {
-        stopAutoPlay();
-    } else {
-        startAutoPlay();
-    }
-    
-    // 更新按钮显示
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    if (playPauseBtn) {
-        playPauseBtn.innerHTML = isAutoPlaying ? '⏸️' : '▶️';
-        playPauseBtn.title = isAutoPlaying ? '暂停 (空格键)' : '播放 (空格键)';
-    }
 }
 
 // 切换上传类型
